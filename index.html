@@ -3,820 +3,638 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>امتحان الحواس وكيف تعمل - الصف الرابع الابتدائي</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>نظام إنشاء PDF لأكواد الدخول للامتحان</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
-        }
-        
-        :root {
-            --primary: #2c5aa0;
-            --secondary: #3a7bd5;
-            --accent: #ff6b6b;
-            --light: #f8f9fa;
-            --dark: #2c3e50;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
-            color: #333;
         }
         
         .container {
-            width: 100%;
-            max-width: 900px;
             background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-        
-        .container:hover {
-            transform: translateY(-5px);
-        }
-        
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
+            border-radius: 15px;
             padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
-            background-size: cover;
-            background-position: center;
-        }
-        
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header h1 {
-            font-size: 2.2rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 2.2em;
         }
         
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 15px;
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
         }
         
-        .quran-verse {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 12px 20px;
+        .upload-area {
+            border: 3px dashed #667eea;
             border-radius: 10px;
-            margin-top: 15px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            backdrop-filter: blur(5px);
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
         }
         
-        .content {
-            padding: 30px;
+        .upload-area:hover {
+            background: #eef1ff;
+            border-color: #764ba2;
         }
         
-        .welcome-screen, .exam-screen, .result-screen {
+        .file-input {
             display: none;
-            animation: fadeIn 0.8s ease;
-        }
-        
-        .active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .student-info {
-            background: var(--light);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border-right: 5px solid var(--primary);
-        }
-        
-        .student-info label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-        
-        .student-info input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-        }
-        
-        .student-info input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.2);
-            outline: none;
-        }
-        
-        .instructions {
-            background: #e8f4fc;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            border-right: 5px solid #3498db;
-        }
-        
-        .instructions h3 {
-            color: #1565c0;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.4rem;
-        }
-        
-        .instructions ul {
-            padding-right: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 12px;
-            line-height: 1.6;
-            font-size: 1.1rem;
         }
         
         .btn {
-            display: block;
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 1.3rem;
-            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 25px;
             cursor: pointer;
-            transition: all 0.4s;
-            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.4);
-            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
         }
         
         .btn:hover {
-            background: linear-gradient(to right, var(--secondary), var(--primary));
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(44, 90, 160, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
-        .btn:active {
-            transform: translateY(1px);
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
         
-        .timer-container {
-            background: linear-gradient(to right, #ff6b6b, #ee5a52);
-            color: white;
-            padding: 18px;
-            border-radius: 12px;
+        .btn-pdf {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .loading {
+            display: none;
             text-align: center;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
+            padding: 20px;
         }
         
-        .timer {
-            font-size: 2rem;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .questions-container {
-            max-height: 500px;
-            overflow-y: auto;
-            padding: 10px;
-        }
-        
-        .question {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border-right: 5px solid var(--primary);
-            transition: all 0.3s;
-        }
-        
-        .question:hover {
-            transform: translateX(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .question-number {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 40px;
-            margin-left: 15px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
         
-        .question-text {
-            font-size: 1.3rem;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
             margin-bottom: 20px;
-            font-weight: 600;
-            color: var(--dark);
-            line-height: 1.6;
+            display: none;
         }
         
-        .options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
         
-        .option {
-            padding: 18px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-            display: flex;
-            align-items: center;
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
-        
-        .option:hover {
-            background: #e0e0e0;
-            transform: translateX(-8px);
-        }
-        
-        .option.selected {
-            background: #e3f2fd;
-            border-color: #2196f3;
-            transform: translateX(-8px);
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
-        }
-        
-        .option input {
-            margin-left: 15px;
-            transform: scale(1.3);
-        }
-        
-        .option label {
-            cursor: pointer;
-            font-size: 1.1rem;
-            flex: 1;
-        }
-        
-        .result-screen {
+
+        .download-link {
+            display: none;
             text-align: center;
-            padding: 40px 30px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 10px;
+            border: 2px solid #28a745;
         }
-        
-        .result-icon {
-            font-size: 5rem;
-            margin-bottom: 25px;
-        }
-        
-        .result-title {
-            font-size: 2.5rem;
-            margin-bottom: 25px;
-            color: var(--primary);
-        }
-        
-        .result-score {
-            font-size: 4.5rem;
+
+        .download-link a {
+            color: #155724;
+            text-decoration: none;
             font-weight: bold;
-            margin: 25px 0;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
         }
-        
-        .result-message {
-            font-size: 1.6rem;
-            margin-bottom: 30px;
-            padding: 25px;
-            border-radius: 15px;
-            line-height: 1.6;
+
+        .download-link a:hover {
+            text-decoration: underline;
         }
-        
-        .weak { background: #ffebee; color: #c62828; }
-        .acceptable { background: #fff3e0; color: #f57f17; }
-        .good { background: #e8f5e9; color: #2e7d32; }
-        .excellent { background: #e3f2fd; color: #1565c0; }
-        .perfect { 
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-            color: #00695c;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-        
-        .teacher-signature {
-            margin-top: 30px;
-            color: #555;
-            font-size: 1.2rem;
-            border-top: 2px dashed #ccc;
-            padding-top: 20px;
-        }
-        
-        .mistakes-container {
-            background: #fff3e0;
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 30px;
+
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ffeaa7;
+            margin: 20px 0;
             text-align: right;
-            border: 2px dashed #ff9800;
         }
-        
-        .mistakes-container h3 {
-            color: #e65100;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        
-        .mistake-item {
-            background: white;
-            padding: 18px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-right: 4px solid #ff9800;
-        }
-        
-        .mistake-question {
-            font-weight: bold;
+
+        .instructions h3 {
+            color: #856404;
             margin-bottom: 10px;
-            color: var(--dark);
         }
-        
-        .mistake-answer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed #ddd;
+
+        .instructions ul {
+            color: #856404;
+            padding-right: 20px;
         }
-        
-        .user-answer {
-            color: var(--danger);
-        }
-        
-        .correct-answer {
-            color: var(--success);
-        }
-        
-        .encouragement {
-            background: #e8f5e9;
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 25px;
-            border-right: 4px solid #4caf50;
-            font-size: 1.2rem;
-            color: #2e7d32;
-            text-align: center;
-            line-height: 1.6;
-        }
-        
-        /* التمرير المخصص */
-        .questions-container::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        .questions-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .questions-container::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-        
-        .questions-container::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary);
-        }
-        
-        /* تصميم متجاوب */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .question-text {
-                font-size: 1.1rem;
-            }
-            
-            .result-title {
-                font-size: 2rem;
-            }
-            
-            .result-score {
-                font-size: 3.5rem;
-            }
-            
-            .result-message {
-                font-size: 1.3rem;
-            }
+
+        .instructions li {
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="header-content">
-                <h1><i class="fas fa-graduation-cap"></i> امتحان الحواس وكيف تعمل</h1>
-                <p>الصف الرابع الابتدائي - المفهوم الثاني</p>
-                <div class="quran-verse">
-                    <i class="fas fa-quote-right"></i> 
-                    "وَقُل رَّبِّ زِدْنِي عِلْمًا" - سورة طه (114)
-                </div>
-            </div>
+        <h1>🎓 نظام إنشاء PDF لأكواد الدخول للامتحان</h1>
+        <p class="subtitle">إنشاء ملف PDF بكروت الدخول - كل صفحة تحتوي على 5 كروت</p>
+        
+        <div class="alert success" id="successAlert"></div>
+        <div class="alert error" id="errorAlert"></div>
+        
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <div>📁</div>
+            <h3>انقر لرفع ملف Excel</h3>
+            <p>Supported formats: .xlsx, .xls</p>
         </div>
         
-        <div class="content">
-            <!-- شاشة الترحيب -->
-            <div class="welcome-screen active">
-                <div class="student-info">
-                    <label for="studentName"><i class="fas fa-user"></i> الاسم الكريم:</label>
-                    <input type="text" id="studentName" placeholder="اكتب اسمك الثلاثي هنا">
-                </div>
-                
-                <div class="instructions">
-                    <h3><i class="fas fa-info-circle"></i> تعليمات الامتحان:</h3>
-                    <ul>
-                        <li>مدة الامتحان: <strong>15 دقيقة</strong></li>
-                        <li>الامتحان يتكون من <strong>8 أسئلة</strong> اختيارية</li>
-                        <li>الدرجة الكلية للامتحان: <strong>8 درجات</strong></li>
-                        <li>اختر الإجابة الصحيحة من بين الخيارات المعطاة</li>
-                        <li>سيتم إظهار النتيجة فور انتهاء الوقت أو عند تقديم الإجابات</li>
-                    </ul>
-                </div>
-                
-                <div class="encouragement">
-                    <i class="fas fa-lightbulb"></i> 
-                    "العلم نور والجهل ظلام" - اجتهد وستنجح بإذن الله
-                </div>
-                
-                <button class="btn" id="startBtn">
-                    <i class="fas fa-play-circle"></i> بدء الامتحان
-                </button>
-            </div>
-            
-            <!-- شاشة الامتحان -->
-            <div class="exam-screen">
-                <div class="timer-container">
-                    <i class="fas fa-clock"></i>
-                    <div class="timer" id="timer">15:00</div>
-                </div>
-                
-                <div class="questions-container" id="questionsContainer">
-                    <!-- سيتم إضافة الأسئلة هنا عبر JavaScript -->
-                </div>
-                
-                <button class="btn" id="submitBtn">
-                    <i class="fas fa-paper-plane"></i> إنهاء الامتحان
-                </button>
-            </div>
-            
-            <!-- شاشة النتيجة -->
-            <div class="result-screen">
-                <div class="result-icon" id="resultIcon"></div>
-                <h2 class="result-title" id="resultTitle">نتيجة الامتحان</h2>
-                <div class="result-score" id="resultScore"></div>
-                <div class="result-message" id="resultMessage"></div>
-                
-                <div class="encouragement" id="encouragementMessage"></div>
-                
-                <div class="mistakes-container" id="mistakesContainer">
-                    <h3><i class="fas fa-exclamation-triangle"></i> الأخطاء التي تحتاج إلى مراجعة</h3>
-                    <div id="mistakesList"></div>
-                </div>
-                
-                <p class="teacher-signature">"وقل اعملوا فسيرى الله عملكم ورسوله والمؤمنون" - التوبة (105)</p>
-                
-                <button class="btn" id="restartBtn" style="background: linear-gradient(to right, #27ae60, #2ecc71); margin-top: 25px;">
-                    <i class="fas fa-redo"></i> إعادة الامتحان
-                </button>
-            </div>
+        <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+        
+        <div class="instructions">
+            <h3>🔍 إذا لم يظهر ملف PDF، اتبع هذه الخطوات:</h3>
+            <ul>
+                <li>تأكد من أن المتصفح يسمح بتنزيل الملفات</li>
+                <li>ابحث في مجلد "التنزيلات" أو "Downloads"</li>
+                <li>اسم الملف: "كروت_الدخول_للامتحان.pdf"</li>
+                <li>إذا لم يعمل، استخدم الرابط البديل أسفل الزر</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="btn" onclick="processExcel()" id="processBtn" disabled>
+                🔄 معالجة البيانات
+            </button>
+            <button class="btn btn-pdf" onclick="generatePDF()" id="pdfBtn" disabled>
+                📄 إنشاء PDF
+            </button>
+        </div>
+
+        <div class="download-link" id="downloadLink">
+            <a href="#" id="pdfDownloadLink" download="كروت_الدخول_للامتحان.pdf">
+                ⬇️ انقر هنا لتحميل ملف PDF إذا لم يبدأ التحميل تلقائياً
+            </a>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="loadingText">جاري معالجة البيانات...</p>
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+            <!-- المعاينة تظهر هنا -->
         </div>
     </div>
 
     <script>
-        // بيانات الأسئلة من الامتحان الجديد
-        const questions = [
-            {
-                text: "يعتمد ...... على الرائحة للتواصل فيما بينهما",
-                options: ["الشمبانزي", "النسانيس", "النمل", "الحيتان"],
-                correct: 2
-            },
-            {
-                text: "عند التعرض لخطر فإن الجهاز ...... يساعد على إدراكه وتجنيه",
-                options: ["الدوري", "الهضمي", "التنفسي", "العصبي"],
-                correct: 3
-            },
-            {
-                text: "يستطيع الدلفين تحديد موقع فريسته عن طريق حاسة ......",
-                options: ["السمع", "التذوق", "الشم", "اللمس"],
-                correct: 0
-            },
-            {
-                text: "من الكائنات التي لها القدرة على لف الرأس في جميع الاتجاهات ......",
-                options: ["اليربوع", "البطريق", "الدلفين", "البومة"],
-                correct: 3
-            },
-            {
-                text: "يمكن التمييز بين الأصوات الحادة والأصوات الغليظة عن طريق",
-                options: ["نمط الصوت", "صدي الصوت", "نوع الصوت", "درجة الصوت"],
-                correct: 3
-            },
-            {
-                text: "تستطيع أن تميز الطعام الفاسد بواسطة حاسة السمع",
-                options: ["صح", "خطأ"],
-                correct: 1
-            },
-            {
-                text: "موسم التزاوج عند الحيتان الحدباء يكون في فصل الصيف",
-                options: ["صح", "خطأ"],
-                correct: 1
-            },
-            {
-                text: "تعتبر الأعصاب هي مركز التحكم الرئيسي في جسم الإنسان",
-                options: ["صح", "خطأ"],
-                correct: 1
-            }
-        ];
+        // جعل jspdf متاح globally
+        window.jsPDF = window.jspdf.jsPDF;
 
-        // عناصر DOM
-        const welcomeScreen = document.querySelector('.welcome-screen');
-        const examScreen = document.querySelector('.exam-screen');
-        const resultScreen = document.querySelector('.result-screen');
-        const startBtn = document.getElementById('startBtn');
-        const submitBtn = document.getElementById('submitBtn');
-        const restartBtn = document.getElementById('restartBtn');
-        const studentNameInput = document.getElementById('studentName');
-        const timerElement = document.getElementById('timer');
-        const questionsContainer = document.getElementById('questionsContainer');
-        const resultIcon = document.getElementById('resultIcon');
-        const resultTitle = document.getElementById('resultTitle');
-        const resultScore = document.getElementById('resultScore');
-        const resultMessage = document.getElementById('resultMessage');
-        const encouragementMessage = document.getElementById('encouragementMessage');
-        const mistakesContainer = document.getElementById('mistakesContainer');
-        const mistakesList = document.getElementById('mistakesList');
-
-        // متغيرات التوقيت
-        let timeLeft = 15 * 60; // 15 دقيقة بالثواني
-        let timerInterval;
-
-        // تهيئة الأسئلة في الواجهة
-        function initializeQuestions() {
-            questionsContainer.innerHTML = '';
+        let excelData = null;
+        let processedData = null;
+        let pdfBlob = null;
+        
+        const gradeMapping = {
+            'الرابع': 'الصف الرابع', 'رابع': 'الصف الرابع',
+            'الخامس': 'الصف الخامس', 'خامس': 'الصف الخامس', 
+            'السادس': 'الصف السادس', 'سادس': 'الصف السادس',
+            'الأول': 'الأول الإعدادي', 'اول': 'الأول الإعدادي', 'أول': 'الأول الإعدادي',
+            'الثاني': 'الثاني الإعدادي', 'ثاني': 'الثاني الإعدادي', 'ثانى': 'الثاني الإعدادي'
+        };
+        
+        const classMapping = {
+            'أ': 'أ', 'ب': 'ب', 'ج': 'ج', 'د': 'د',
+            'a': 'أ', 'b': 'ب', 'c': 'ج', 'd': 'د'
+        };
+        
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            questions.forEach((question, index) => {
-                const questionElement = document.createElement('div');
-                questionElement.className = 'question';
-                
-                let optionsHTML = '';
-                question.options.forEach((option, optionIndex) => {
-                    optionsHTML += `
-                        <div class="option" onclick="selectOption(this, ${index}, ${optionIndex})">
-                            <input type="radio" name="q${index}" id="q${index}o${optionIndex}">
-                            <label for="q${index}o${optionIndex}">${option}</label>
-                        </div>
-                    `;
-                });
-                
-                questionElement.innerHTML = `
-                    <div class="question-number">${index + 1}</div>
-                    <div class="question-text">${question.text}</div>
-                    <div class="options">${optionsHTML}</div>
-                `;
-                
-                questionsContainer.appendChild(questionElement);
-            });
-        }
-
-        // تحديد خيار
-        function selectOption(optionElement, questionIndex, optionIndex) {
-            const questionElement = optionElement.closest('.question');
-            const allOptions = questionElement.querySelectorAll('.option');
+            const reader = new FileReader();
             
-            allOptions.forEach(opt => opt.classList.remove('selected'));
-            optionElement.classList.add('selected');
-            
-            const radioInput = optionElement.querySelector('input');
-            radioInput.checked = true;
-        }
-
-        // بدء المؤقت
-        function startTimer() {
-            clearInterval(timerInterval);
-            
-            timerInterval = setInterval(() => {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                
-                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    submitExam();
-                } else {
-                    timeLeft--;
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    excelData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                     
-                    // تغيير لون المؤقت عندما يقل الوقت
-                    if (timeLeft < 60) {
-                        timerElement.style.color = '#ffeb3b';
+                    document.getElementById('processBtn').disabled = false;
+                    showAlert(`تم رفع الملف بنجاح: ${file.name}`, 'success');
+                    
+                } catch (error) {
+                    showAlert('خطأ في قراءة الملف!', 'error');
+                    console.error(error);
+                }
+            };
+            
+            reader.onerror = function() {
+                showAlert('خطأ في قراءة الملف!', 'error');
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function extractGradeClass(stageText) {
+            if (!stageText) return { grade: 'غير محدد', classChar: '' };
+            
+            const stageStr = String(stageText);
+            
+            let grade = 'غير محدد';
+            for (const [key, value] of Object.entries(gradeMapping)) {
+                if (stageStr.includes(key)) {
+                    grade = value;
+                    break;
+                }
+            }
+            
+            let classChar = '';
+            for (const [char, value] of Object.entries(classMapping)) {
+                if (stageStr.includes(char)) {
+                    classChar = value;
+                    break;
+                }
+            }
+            
+            return { grade, classChar };
+        }
+        
+        function processExcel() {
+            if (!excelData) {
+                showAlert('يرجى رفع ملف Excel أولاً!', 'error');
+                return;
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('processBtn').disabled = true;
+            
+            setTimeout(() => {
+                try {
+                    processedData = [];
+                    const classCounters = {};
+                    
+                    let dataStartRow = 0;
+                    for (let i = 0; i < excelData.length; i++) {
+                        if (excelData[i] && excelData[i][1] && 
+                            typeof excelData[i][1] === 'string' && 
+                            !excelData[i][1].includes('الاسم') &&
+                            excelData[i][1].trim() !== '') {
+                            dataStartRow = i;
+                            break;
+                        }
                     }
+                    
+                    for (let i = dataStartRow; i < excelData.length; i++) {
+                        const row = excelData[i];
+                        if (!row || !row[1] || String(row[1]).trim() === '') continue;
+                        
+                        const studentName = String(row[1]).trim();
+                        const stage = row[5] || '';
+                        
+                        const { grade, classChar } = extractGradeClass(stage);
+                        
+                        const counterKey = grade !== 'غير محدد' ? `${grade}_${classChar}` : 'unknown';
+                        
+                        if (!classCounters[counterKey]) {
+                            classCounters[counterKey] = 1;
+                        } else {
+                            classCounters[counterKey]++;
+                        }
+                        
+                        const serial = classCounters[counterKey];
+                        const code = generateStudentCode(grade, classChar, serial);
+                        
+                        processedData.push({
+                            name: studentName,
+                            stage: stage,
+                            code: code,
+                            grade: grade,
+                            classChar: classChar,
+                            serial: serial
+                        });
+                    }
+                    
+                    showPreview();
+                    document.getElementById('pdfBtn').disabled = false;
+                    showAlert(`تم معالجة ${processedData.length} طالب بنجاح!`, 'success');
+                    
+                } catch (error) {
+                    showAlert('حدث خطأ أثناء معالجة البيانات!', 'error');
+                    console.error(error);
+                } finally {
+                    document.getElementById('loading').style.display = 'none';
                 }
             }, 1000);
         }
-
-        // تقديم الامتحان
-        function submitExam() {
-            clearInterval(timerInterval);
+        
+        function generateStudentCode(grade, classChar, serial) {
+            const gradeNum = {
+                'الصف الرابع': 4,
+                'الصف الخامس': 5,
+                'الصف السادس': 6,
+                'الأول الإعدادي': 7,
+                'الثاني الإعدادي': 8,
+                'غير محدد': 0
+            }[grade] || 0;
             
-            const studentName = studentNameInput.value.trim();
-            if (!studentName) {
-                alert('يرجى كتابة الاسم الثلاثي');
+            const classNum = {
+                'أ': 1, 'ب': 2, 'ج': 3, 'د': 4, '': 1
+            }[classChar] || 1;
+            
+            if (gradeNum === 0) {
+                return serial.toString().padStart(5, '0');
+            }
+            return parseInt(`${gradeNum}${classNum}${serial.toString().padStart(3, '0')}`);
+        }
+        
+        function showPreview() {
+            const previewContainer = document.getElementById('previewContainer');
+            previewContainer.innerHTML = '<h3 style="text-align:center; margin-bottom:20px;">معاينة البيانات</h3>';
+            
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+            table.innerHTML = `
+                <thead>
+                    <tr style="background:#667eea; color:white;">
+                        <th style="padding:12px; border:1px solid #ddd;">الكود</th>
+                        <th style="padding:12px; border:1px solid #ddd;">اسم الطالب</th>
+                        <th style="padding:12px; border:1px solid #ddd;">الصف</th>
+                        <th style="padding:12px; border:1px solid #ddd;">الشعبة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${processedData.map(student => `
+                        <tr>
+                            <td style="padding:10px; border:1px solid #ddd; text-align:center;"><strong>${student.code}</strong></td>
+                            <td style="padding:10px; border:1px solid #ddd;">${student.name}</td>
+                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.grade}</td>
+                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.classChar || ''}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+            
+            previewContainer.appendChild(table);
+        }
+        
+        async function generatePDF() {
+            if (!processedData || processedData.length === 0) {
+                showAlert('لا توجد بيانات لإنشاء PDF!', 'error');
                 return;
             }
             
-            // حساب النتيجة
-            let score = 0;
-            const userAnswers = [];
-            const mistakes = [];
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loadingText').textContent = 'جاري إنشاء ملف PDF...';
+            document.getElementById('pdfBtn').disabled = true;
             
-            questions.forEach((question, index) => {
-                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
-                const userAnswerIndex = selectedOption ? parseInt(selectedOption.id.replace(`q${index}o`, '')) : -1;
-                const isCorrect = userAnswerIndex === question.correct;
+            try {
+                // إنشاء مستند PDF جديد
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
                 
-                if (isCorrect) {
-                    score++;
-                } else {
-                    // تسجيل الخطأ
-                    mistakes.push({
-                        question: question.text,
-                        userAnswer: userAnswerIndex !== -1 ? question.options[userAnswerIndex] : 'لم يتم الإجابة',
-                        correctAnswer: question.options[question.correct]
-                    });
+                // تقسيم البيانات إلى مجموعات من 5 طلاب
+                const studentsPerPage = 5;
+                const pages = [];
+                
+                for (let i = 0; i < processedData.length; i += studentsPerPage) {
+                    pages.push(processedData.slice(i, i + studentsPerPage));
                 }
                 
-                userAnswers.push({
-                    question: question.text,
-                    userAnswer: userAnswerIndex !== -1 ? question.options[userAnswerIndex] : 'لم يتم الإجابة',
-                    correctAnswer: question.options[question.correct],
-                    isCorrect: isCorrect
-                });
-            });
-            
-            // عرض النتيجة
-            showResult(studentName, score, mistakes);
-        }
-
-        // عرض النتيجة
-        function showResult(studentName, score, mistakes) {
-            examScreen.classList.remove('active');
-            resultScreen.classList.add('active');
-            
-            let resultClass = '';
-            let message = '';
-            let icon = '';
-            let encouragement = '';
-            
-            if (score <= 2) {
-                resultClass = 'weak';
-                message = `عزيزي ${studentName}، نتيجتك ${score}/8 - تحتاج إلى مزيد من التركيز والمذاكرة`;
-                icon = '😔';
-                encouragement = '"وقل رب زدني علما" - واصل التعلم وستتحسن نتائجك';
-            } else if (score >= 3 && score <= 5) {
-                resultClass = 'acceptable';
-                message = `عزيزي ${studentName}، نتيجتك ${score}/8 - مقبول ولكن يمكنك التحسين`;
-                icon = '😊';
-                encouragement = '"وفوق كل ذي علم عليم" - استمر في التعلم وسيزداد علمك';
-            } else if (score === 6) {
-                resultClass = 'good';
-                message = `مبارك ${studentName}، نتيجتك ${score}/8 - جيد جداً`;
-                icon = '👍';
-                encouragement = '"يرفع الله الذين آمنوا منكم والذين أوتوا العلم درجات" - صدق الله العظيم';
-            } else if (score === 7) {
-                resultClass = 'excellent';
-                message = `تهانينا ${studentName}، نتيجتك ${score}/8 - ممتاز`;
-                icon = '🎉';
-                encouragement = '"إنما يخشى الله من عباده العلماء" - اجتهدت فأحسنت';
-            } else if (score === 8) {
-                resultClass = 'perfect';
-                message = `ماشاء الله ${studentName}، نتيجتك ${score}/8 - نتيجة رائعة`;
-                icon = '🏆';
-                encouragement = '"وقل اعملوا فسيرى الله عملكم ورسوله والمؤمنون" - أحسنت العمل';
+                // إضافة كل صفحة إلى PDF
+                for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+                    if (pageIndex > 0) {
+                        pdf.addPage();
+                    }
+                    
+                    const pageStudents = pages[pageIndex];
+                    
+                    // إضافة خلفية الصفحة
+                    pdf.setFillColor(255, 255, 255);
+                    pdf.rect(0, 0, 210, 297, 'F');
+                    
+                    // إضافة كل كرت طالب
+                    for (let studentIndex = 0; studentIndex < studentsPerPage; studentIndex++) {
+                        const yPosition = 15 + (studentIndex * 55); // 55mm بين كل كرت
+                        
+                        if (studentIndex < pageStudents.length) {
+                            const student = pageStudents[studentIndex];
+                            drawStudentCard(pdf, student, yPosition);
+                        } else {
+                            // كرت فارغ
+                            drawEmptyCard(pdf, yPosition);
+                        }
+                        
+                        // إضافة خط القطع بين الكروت (ما عدا الأخير)
+                        if (studentIndex < studentsPerPage - 1) {
+                            pdf.setDrawColor(231, 76, 60);
+                            pdf.setLineWidth(0.5);
+                            for (let i = 0; i < 190; i += 10) {
+                                if (i % 20 === 0) {
+                                    pdf.line(10 + i, yPosition + 52, 15 + i, yPosition + 52);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // إضافة رقم الصفحة
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(149, 165, 166);
+                    pdf.text(`الصفحة ${pageIndex + 1} من ${pages.length}`, 105, 285, { align: 'center' });
+                }
+                
+                // حفظ ملف PDF كـ Blob
+                const pdfBlob = pdf.output('blob');
+                
+                // إنشاء رابط تحميل
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const downloadLink = document.getElementById('pdfDownloadLink');
+                downloadLink.href = pdfUrl;
+                
+                // محاولة التحميل التلقائي
+                try {
+                    const link = document.createElement('a');
+                    link.href = pdfUrl;
+                    link.download = 'كروت_الدخول_للامتحان.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    showAlert(`✅ تم إنشاء ملف PDF بنجاح! يجب أن يبدأ التحميل تلقائياً. إذا لم يحدث، استخدم الرابط أدناه.`, 'success');
+                } catch (autoDownloadError) {
+                    showAlert(`✅ تم إنشاء ملف PDF! استخدم الرابط أدناه للتحميل.`, 'success');
+                }
+                
+                // إظهار رابط التحميل البديل
+                document.getElementById('downloadLink').style.display = 'block';
+                
+                // تحرير الذاكرة بعد 30 ثانية
+                setTimeout(() => {
+                    URL.revokeObjectURL(pdfUrl);
+                }, 30000);
+                
+            } catch (error) {
+                showAlert('حدث خطأ أثناء إنشاء PDF!', 'error');
+                console.error(error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('pdfBtn').disabled = false;
             }
-            
-            resultIcon.textContent = icon;
-            resultScore.textContent = `${score}/8`;
-            resultMessage.textContent = message;
-            resultMessage.className = `result-message ${resultClass}`;
-            encouragementMessage.textContent = encouragement;
-            
-            // عرض الأخطاء إذا وجدت
-            if (mistakes.length > 0) {
-                mistakesList.innerHTML = '';
-                mistakes.forEach((mistake, index) => {
-                    const mistakeItem = document.createElement('div');
-                    mistakeItem.className = 'mistake-item';
-                    mistakeItem.innerHTML = `
-                        <div class="mistake-question">${mistake.question}</div>
-                        <div class="mistake-answer">
-                            <span class="user-answer">إجابتك: ${mistake.userAnswer}</span>
-                            <span class="correct-answer">الإجابة الصحيحة: ${mistake.correctAnswer}</span>
-                        </div>
-                    `;
-                    mistakesList.appendChild(mistakeItem);
-                });
-            } else {
-                mistakesContainer.style.display = 'none';
-            }
         }
-
-        // إعادة تعيين الامتحان
-        function resetExam() {
-            timeLeft = 15 * 60;
-            timerElement.textContent = '15:00';
-            timerElement.style.color = 'white';
-            studentNameInput.value = '';
+        
+        function drawStudentCard(pdf, student, yPosition) {
+            // خلفية الكرت
+            pdf.setFillColor(248, 249, 250);
+            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'F');
             
-            // إعادة تعيين الأسئلة
-            initializeQuestions();
+            // حدود الكرت
+            pdf.setDrawColor(44, 62, 80);
+            pdf.setLineWidth(0.5);
+            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'D');
             
-            resultScreen.classList.remove('active');
-            welcomeScreen.classList.add('active');
-            mistakesContainer.style.display = 'block';
+            // عنوان المدرسة
+            pdf.setFontSize(12);
+            pdf.setTextColor(44, 62, 80);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('مدرسة الجيل الجديد الخاصة', 105, yPosition + 8, { align: 'center' });
+            
+            // "كود الدخول للامتحان"
+            pdf.setFontSize(10);
+            pdf.setTextColor(231, 76, 60);
+            pdf.text('كود الدخول للامتحان', 105, yPosition + 14, { align: 'center' });
+            
+            // خط تحت العنوان
+            pdf.setDrawColor(52, 152, 219);
+            pdf.setLineWidth(0.8);
+            pdf.line(50, yPosition + 16, 160, yPosition + 16);
+            
+            // اسم الطالب
+            pdf.setFontSize(14);
+            pdf.setTextColor(44, 62, 80);
+            pdf.text(student.name, 105, yPosition + 25, { align: 'center' });
+            
+            // الكود
+            pdf.setFontSize(20);
+            pdf.setTextColor(231, 76, 60);
+            pdf.setFont(undefined, 'bold');
+            
+            // خلفية الكود
+            pdf.setFillColor(255, 255, 255);
+            pdf.roundedRect(70, yPosition + 28, 70, 12, 2, 2, 'F');
+            pdf.setDrawColor(204, 204, 204);
+            pdf.setLineWidth(0.3);
+            pdf.roundedRect(70, yPosition + 28, 70, 12, 2, 2, 'D');
+            
+            pdf.text(student.code.toString(), 105, yPosition + 36, { align: 'center' });
+            
+            // الصف والشعبة
+            pdf.setFontSize(12);
+            pdf.setTextColor(52, 73, 94);
+            pdf.setFont(undefined, 'bold');
+            const gradeText = student.classChar ? 
+                `${student.grade} - شعبة ${student.classChar}` : 
+                student.grade;
+            pdf.text(gradeText, 105, yPosition + 45, { align: 'center' });
         }
-
-        // إضافة مستمعي الأحداث
-        startBtn.addEventListener('click', () => {
-            const studentName = studentNameInput.value.trim();
-            if (!studentName) {
-                alert('يرجى كتابة الاسم الثلاثي');
-                return;
-            }
+        
+        function drawEmptyCard(pdf, yPosition) {
+            // خلفية الكرت الفارغ
+            pdf.setFillColor(248, 249, 250);
+            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'F');
             
-            welcomeScreen.classList.remove('active');
-            examScreen.classList.add('active');
+            // حدود متقطعة للكرت الفارغ
+            pdf.setDrawColor(44, 62, 80);
+            pdf.setLineWidth(0.5);
+            pdf.setLineDashPattern([3, 3], 0);
+            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'D');
+            pdf.setLineDashPattern([], 0);
             
-            initializeQuestions();
-            startTimer();
+            // نص "كرت فارغ"
+            pdf.setFontSize(14);
+            pdf.setTextColor(153, 153, 153);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('كرت فارغ', 105, yPosition + 25, { align: 'center' });
+        }
+        
+        function showAlert(message, type) {
+            const alert = document.getElementById(type + 'Alert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 10000);
+        }
+        
+        // سحب وإفلات الملفات
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#eef1ff';
         });
         
-        submitBtn.addEventListener('click', submitExam);
-        restartBtn.addEventListener('click', resetExam);
-
-        // تهيئة الصفحة
-        initializeQuestions();
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '#f8f9ff';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f8f9ff';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                handleFileSelect({ target: { files: files } });
+            }
+        });
     </script>
 </body>
 </html>
