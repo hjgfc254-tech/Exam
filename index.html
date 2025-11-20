@@ -26,7 +26,7 @@
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -73,6 +73,10 @@
         
         .btn-pdf {
             background: #e74c3c;
+        }
+        
+        .btn-preview {
+            background: #28a745;
         }
         
         .btn:disabled {
@@ -131,6 +135,48 @@
             background: #f9f9f9;
         }
 
+        .pdf-preview-container {
+            display: none;
+            margin-top: 30px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            background: white;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .download-section {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+        }
+
+        .download-link {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .download-link:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
         .file-input {
             display: none;
         }
@@ -154,20 +200,36 @@
             padding-right: 20px;
         }
 
-        .debug-info {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 12px;
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .test-data {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #b3d9ff;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .test-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎓 نظام أكواد الدخول للامتحان</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">مدرسة الجيل الجديد الخاصة</p>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">مدرسة الجيل الجديد الخاصة - مع معاينة مباشرة</p>
         
         <div class="alert success" id="successAlert"></div>
         <div class="alert error" id="errorAlert"></div>
@@ -175,26 +237,36 @@
         <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
             <div>📁</div>
             <h3>انقر لرفع ملف Excel</h3>
-            <p>الملف يجب أن يحتوي على أسماء الطلاب والصفوف</p>
+            <p>أو جرب البيانات التجريبية أولاً</p>
         </div>
         
         <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
         
+        <div class="test-data">
+            <h3>🧪 جرب النظام أولاً ببيانات تجريبية</h3>
+            <button class="test-btn" onclick="loadTestData()">تحميل بيانات تجريبية</button>
+            <p style="color: #666; margin-top: 10px; font-size: 14px;">هذا لاختبار النظام بدون رفع ملف</p>
+        </div>
+        
         <div class="instructions">
-            <h3>🔧 الإصدار المحسّن - حل مشكلة العربية</h3>
+            <h3>💡 طريقة الاستخدام الجديدة:</h3>
             <ul>
-                <li>تم إصلاح مشكلة الترميز بشكل نهائي</li>
-                <li>الأسماء العربية ستظهر بشكل صحيح 100%</li>
-                <li>يدعم جميع أنواع ترميزات Excel</li>
+                <li>ارفع ملف Excel أو استخدم البيانات التجريبية</li>
+                <li>اضغط "معاينة PDF" لرؤية النتيجة مباشرة في الصفحة</li>
+                <li>إذا الأعجبك، اضغط "تحميل PDF" لحفظ الملف</li>
+                <li>يمكنك رؤية النتيجة فوراً بدون تحميل!</li>
             </ul>
         </div>
         
-        <div style="text-align: center; margin: 20px 0;">
+        <div class="controls">
             <button class="btn" onclick="processExcel()" id="processBtn" disabled>
                 🔄 معالجة البيانات
             </button>
-            <button class="btn btn-pdf" onclick="generatePDF()" id="pdfBtn" disabled>
-                📄 إنشاء PDF
+            <button class="btn btn-preview" onclick="previewPDF()" id="previewBtn" disabled>
+                👁️ معاينة PDF
+            </button>
+            <button class="btn btn-pdf" onclick="downloadPDF()" id="downloadBtn" disabled>
+                📄 تحميل PDF
             </button>
         </div>
         
@@ -204,11 +276,26 @@
         </div>
 
         <div class="preview-container" id="previewContainer"></div>
+
+        <div class="pdf-preview-container" id="pdfPreviewContainer">
+            <h3 style="text-align: center; color: #333; margin-bottom: 15px;">معاينة PDF - كروت الدخول</h3>
+            <iframe class="pdf-viewer" id="pdfViewer" src=""></iframe>
+            <div class="download-section">
+                <p style="margin-bottom: 15px; font-weight: bold;">✅ تم إنشاء ملف PDF بنجاح!</p>
+                <a href="#" class="download-link" id="finalDownloadLink" download="كروت_الدخول_للامتحان.pdf">
+                    ⬇️ انقر هنا لتحميل الملف
+                </a>
+                <button class="btn" onclick="printPDF()" style="background: #17a2b8;">
+                    🖨️ طباعة
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
         let excelData = null;
         let processedData = null;
+        let currentPdfUrl = null;
         
         const gradeMapping = {
             'الرابع': 'الصف الرابع', 'رابع': 'الصف الرابع',
@@ -223,44 +310,24 @@
             'a': 'أ', 'b': 'ب', 'c': 'ج', 'd': 'د'
         };
 
-        // دالة لتنظيف النص العربي من المشاكل
-        function cleanArabicText(text) {
-            if (!text || typeof text !== 'string') return '';
+        // بيانات تجريبية للاختبار
+        function loadTestData() {
+            processedData = [
+                { name: 'أحمد محمود محمد', code: 41001, grade: 'الصف الرابع', classChar: 'أ' },
+                { name: 'محمد سعيد عبدالله', code: 41002, grade: 'الصف الرابع', classChar: 'أ' },
+                { name: 'ياسمين أحمد حسن', code: 41003, grade: 'الصف الرابع', classChar: 'أ' },
+                { name: 'فاطمة خالد علي', code: 41004, grade: 'الصف الرابع', classChar: 'أ' },
+                { name: 'عمر محمد سليم', code: 41005, grade: 'الصف الرابع', classChar: 'أ' },
+                { name: 'سارة محمود إبراهيم', code: 51001, grade: 'الصف الخامس', classChar: 'ب' },
+                { name: 'خالد أحمد مصطفى', code: 51002, grade: 'الصف الخامس', classChar: 'ب' }
+            ];
             
-            // إزالة الأحرف الغريبة والمشاكل الشائعة
-            let cleaned = text
-                .replace(/[^\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\s0-9a-zA-Z]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-            
-            // إذا النص فاضي بعد التنظيف، نعيد النص الأصلي
-            if (cleaned === '') {
-                return text;
-            }
-            
-            return cleaned;
+            showPreview();
+            document.getElementById('previewBtn').disabled = false;
+            document.getElementById('downloadBtn').disabled = false;
+            showAlert('✅ تم تحميل البيانات التجريبية بنجاح', 'success');
         }
 
-        // دالة لتحويل الترميز
-        function fixEncoding(text) {
-            if (!text) return '';
-            
-            // إذا النص فيه مشاكل ترميز، نحاول إصلاحها
-            if (text.includes('�') || text.match(/[^\x00-\x7F]/) && !text.match(/[\u0600-\u06FF]/)) {
-                try {
-                    // محاولة تحويل من Windows-1256 إلى UTF-8
-                    const decoder = new TextDecoder('windows-1256');
-                    const encoder = new TextEncoder();
-                    const bytes = encoder.encode(text);
-                    return decoder.decode(bytes);
-                } catch (e) {
-                    return text;
-                }
-            }
-            
-            return text;
-        }
-        
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -272,34 +339,97 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array', codepage: 1256 });
                     
-                    // الحصول على أول sheet
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    // تحويل إلى JSON مع الحفاظ على البيانات كما هي
                     excelData = XLSX.utils.sheet_to_json(worksheet, { 
                         header: 1,
-                        raw: false, // هذا مهم للحصول على النص كما هو
+                        raw: false,
                         defval: ''
                     });
                     
                     document.getElementById('processBtn').disabled = false;
                     showAlert('✅ تم رفع الملف بنجاح', 'success');
                     
-                    // عرض عينة من البيانات للت debug
-                    console.log('عينة من البيانات:', excelData.slice(0, 5));
-                    
                 } catch (error) {
                     showAlert('❌ خطأ في قراءة الملف', 'error');
-                    console.error('Error reading file:', error);
                 }
             };
             
-            reader.onerror = function() {
-                showAlert('❌ خطأ في قراءة الملف', 'error');
-            };
-            
             reader.readAsArrayBuffer(file);
+        }
+        
+        function processExcel() {
+            if (!excelData) {
+                showAlert('⚠️ يرجى رفع ملف Excel أولاً', 'error');
+                return;
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('processBtn').disabled = true;
+            
+            setTimeout(() => {
+                try {
+                    processedData = [];
+                    const classCounters = {};
+                    
+                    let dataStartRow = 0;
+                    for (let i = 0; i < Math.min(10, excelData.length); i++) {
+                        const row = excelData[i];
+                        if (row && row[1] && typeof row[1] === 'string') {
+                            const nameCell = row[1].trim();
+                            if (nameCell && !nameCell.includes('اسم') && !nameCell.includes('Name')) {
+                                dataStartRow = i;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    for (let i = dataStartRow; i < excelData.length; i++) {
+                        const row = excelData[i];
+                        if (!row || row.length < 2) continue;
+                        
+                        let studentName = row[1] || '';
+                        if (typeof studentName !== 'string') {
+                            studentName = String(studentName);
+                        }
+                        
+                        studentName = studentName.trim();
+                        if (studentName === '') continue;
+                        
+                        const stage = row[5] || '';
+                        const { grade, classChar } = extractGradeClass(stage);
+                        
+                        const counterKey = grade !== 'غير محدد' ? `${grade}_${classChar}` : 'unknown';
+                        
+                        if (!classCounters[counterKey]) {
+                            classCounters[counterKey] = 1;
+                        } else {
+                            classCounters[counterKey]++;
+                        }
+                        
+                        const serial = classCounters[counterKey];
+                        const code = generateStudentCode(grade, classChar, serial);
+                        
+                        processedData.push({
+                            name: studentName,
+                            code: code,
+                            grade: grade,
+                            classChar: classChar
+                        });
+                    }
+                    
+                    showPreview();
+                    document.getElementById('previewBtn').disabled = false;
+                    document.getElementById('downloadBtn').disabled = false;
+                    showAlert(`✅ تم معالجة ${processedData.length} طالب`, 'success');
+                    
+                } catch (error) {
+                    showAlert('❌ حدث خطأ في المعالجة', 'error');
+                } finally {
+                    document.getElementById('loading').style.display = 'none';
+                }
+            }, 1000);
         }
         
         function extractGradeClass(stageText) {
@@ -324,97 +454,6 @@
             }
             
             return { grade, classChar };
-        }
-        
-        function processExcel() {
-            if (!excelData) {
-                showAlert('⚠️ يرجى رفع ملف Excel أولاً', 'error');
-                return;
-            }
-            
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('processBtn').disabled = true;
-            
-            setTimeout(() => {
-                try {
-                    processedData = [];
-                    const classCounters = {};
-                    
-                    // البحث عن بداية البيانات الحقيقية (تخطي العناوين)
-                    let dataStartRow = 0;
-                    for (let i = 0; i < Math.min(10, excelData.length); i++) {
-                        const row = excelData[i];
-                        if (row && row[1] && typeof row[1] === 'string') {
-                            const nameCell = row[1].trim();
-                            // إذا الخلية تحتوي على اسم حقيقي وليس عنوان
-                            if (nameCell && 
-                                !nameCell.includes('اسم') && 
-                                !nameCell.includes('Name') &&
-                                nameCell.length > 2) {
-                                dataStartRow = i;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    console.log('بداية البيانات من الصف:', dataStartRow);
-                    
-                    for (let i = dataStartRow; i < excelData.length; i++) {
-                        const row = excelData[i];
-                        if (!row || row.length < 2) continue;
-                        
-                        let studentName = row[1] || '';
-                        if (typeof studentName !== 'string') {
-                            studentName = String(studentName);
-                        }
-                        
-                        studentName = studentName.trim();
-                        if (studentName === '') continue;
-                        
-                        // تنظيف النص وإصلاح الترميز
-                        studentName = fixEncoding(studentName);
-                        studentName = cleanArabicText(studentName);
-                        
-                        const stage = row[5] || '';
-                        
-                        const { grade, classChar } = extractGradeClass(stage);
-                        
-                        const counterKey = grade !== 'غير محدد' ? `${grade}_${classChar}` : 'unknown';
-                        
-                        if (!classCounters[counterKey]) {
-                            classCounters[counterKey] = 1;
-                        } else {
-                            classCounters[counterKey]++;
-                        }
-                        
-                        const serial = classCounters[counterKey];
-                        const code = generateStudentCode(grade, classChar, serial);
-                        
-                        processedData.push({
-                            name: studentName,
-                            stage: stage,
-                            code: code,
-                            grade: grade,
-                            classChar: classChar,
-                            serial: serial,
-                            originalName: row[1] // حفظ الاسم الأصلي للت debug
-                        });
-                    }
-                    
-                    showPreview();
-                    document.getElementById('pdfBtn').disabled = false;
-                    showAlert(`✅ تم معالجة ${processedData.length} طالب`, 'success');
-                    
-                    // عرض عينة للت debug
-                    console.log('البيانات المعالجة:', processedData.slice(0, 3));
-                    
-                } catch (error) {
-                    showAlert('❌ حدث خطأ في المعالجة', 'error');
-                    console.error('Processing error:', error);
-                } finally {
-                    document.getElementById('loading').style.display = 'none';
-                }
-            }, 1000);
         }
         
         function generateStudentCode(grade, classChar, serial) {
@@ -468,152 +507,197 @@
             previewContainer.appendChild(table);
         }
         
-        function generatePDF() {
+        function createPDF() {
             if (!processedData || processedData.length === 0) {
                 showAlert('⚠️ لا توجد بيانات لإنشاء PDF', 'error');
+                return null;
+            }
+            
+            const studentsPerPage = 5;
+            const pages = [];
+            
+            for (let i = 0; i < processedData.length; i += studentsPerPage) {
+                pages.push(processedData.slice(i, i + studentsPerPage));
+            }
+            
+            const docDefinition = {
+                pageSize: 'A4',
+                pageMargins: [20, 20, 20, 20],
+                content: [],
+                defaultStyle: {
+                    font: 'Roboto',
+                    alignment: 'right'
+                },
+                styles: {
+                    header: {
+                        fontSize: 16,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#2c3e50',
+                        margin: [0, 0, 0, 20]
+                    },
+                    cardHeader: {
+                        fontSize: 12,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#2c3e50'
+                    },
+                    examTitle: {
+                        fontSize: 10,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#e74c3c',
+                        margin: [0, 5, 0, 10]
+                    },
+                    studentName: {
+                        fontSize: 14,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#2c3e50',
+                        margin: [0, 10, 0, 10]
+                    },
+                    studentCode: {
+                        fontSize: 20,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#e74c3c',
+                        margin: [0, 10, 0, 10]
+                    },
+                    studentGrade: {
+                        fontSize: 12,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#34495e'
+                    }
+                }
+            };
+            
+            pages.forEach((pageStudents, pageIndex) => {
+                const pageContent = [];
+                
+                pageContent.push({
+                    text: `كروت الدخول للامتحان - الصفحة ${pageIndex + 1} من ${pages.length}`,
+                    style: 'header'
+                });
+                
+                pageStudents.forEach((student) => {
+                    const card = {
+                        table: {
+                            widths: ['*'],
+                            body: [
+                                [{
+                                    text: [
+                                        { text: 'مدرسة الجيل الجديد الخاصة\n', style: 'cardHeader' },
+                                        { text: 'كود الدخول للامتحان\n', style: 'examTitle' },
+                                        { text: student.name + '\n', style: 'studentName' },
+                                        { text: student.code.toString() + '\n', style: 'studentCode' },
+                                        { text: student.grade + (student.classChar ? ' - شعبة ' + student.classChar : ''), style: 'studentGrade' }
+                                    ],
+                                    alignment: 'center',
+                                    lineHeight: 1.5
+                                }]
+                            ]
+                        },
+                        layout: {
+                            hLineWidth: function(i, node) { return 2; },
+                            vLineWidth: function(i, node) { return 0; },
+                            hLineColor: function(i, node) { return '#2c3e50'; },
+                            paddingTop: function(i, node) { return 10; },
+                            paddingBottom: function(i, node) { return 10; },
+                            fillColor: function(i, node) { return '#f8f9fa'; }
+                        },
+                        margin: [0, 0, 0, 10]
+                    };
+                    
+                    pageContent.push(card);
+                });
+                
+                docDefinition.content.push(...pageContent);
+                
+                if (pageIndex < pages.length - 1) {
+                    docDefinition.content.push({
+                        text: '',
+                        pageBreak: 'after'
+                    });
+                }
+            });
+            
+            return docDefinition;
+        }
+        
+        function previewPDF() {
+            if (!processedData) {
+                showAlert('⚠️ لا توجد بيانات للمعاينة', 'error');
                 return;
             }
             
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('loadingText').textContent = 'جاري إنشاء PDF...';
-            document.getElementById('pdfBtn').disabled = true;
+            document.getElementById('loadingText').textContent = 'جاري إنشاء المعاينة...';
             
-            try {
-                // تقسيم البيانات إلى صفحات (5 طلاب في الصفحة)
-                const studentsPerPage = 5;
-                const pages = [];
-                
-                for (let i = 0; i < processedData.length; i += studentsPerPage) {
-                    pages.push(processedData.slice(i, i + studentsPerPage));
-                }
-                
-                // إنشاء محتوى PDF
-                const docDefinition = {
-                    pageSize: 'A4',
-                    pageMargins: [20, 20, 20, 20],
-                    content: [],
-                    defaultStyle: {
-                        font: 'Roboto',
-                        alignment: 'right',
-                        lineHeight: 1.4
-                    },
-                    styles: {
-                        header: {
-                            fontSize: 16,
-                            bold: true,
-                            alignment: 'center',
-                            color: '#2c3e50',
-                            margin: [0, 0, 0, 20]
-                        },
-                        card: {
-                            margin: [0, 0, 0, 10],
-                            alignment: 'center'
-                        },
-                        schoolName: {
-                            fontSize: 12,
-                            bold: true,
-                            color: '#2c3e50',
-                            margin: [0, 0, 0, 5]
-                        },
-                        examTitle: {
-                            fontSize: 10,
-                            bold: true,
-                            color: '#e74c3c',
-                            margin: [0, 0, 0, 10]
-                        },
-                        studentName: {
-                            fontSize: 14,
-                            bold: true,
-                            color: '#2c3e50',
-                            margin: [0, 0, 0, 10]
-                        },
-                        studentCode: {
-                            fontSize: 20,
-                            bold: true,
-                            color: '#e74c3c',
-                            margin: [0, 0, 0, 10]
-                        },
-                        studentGrade: {
-                            fontSize: 12,
-                            bold: true,
-                            color: '#34495e',
-                            margin: [0, 0, 0, 5]
-                        }
-                    }
-                };
-                
-                // إضافة كل صفحة
-                pages.forEach((pageStudents, pageIndex) => {
-                    const pageContent = [];
+            setTimeout(() => {
+                try {
+                    const docDefinition = createPDF();
+                    if (!docDefinition) return;
                     
-                    // عنوان الصفحة
-                    pageContent.push({
-                        text: `كروت الدخول للامتحان - الصفحة ${pageIndex + 1} من ${pages.length}`,
-                        style: 'header'
-                    });
-                    
-                    // إضافة كروت الطلاب
-                    pageStudents.forEach((student) => {
-                        const card = {
-                            stack: [
-                                {
-                                    text: 'مدرسة الجيل الجديد الخاصة',
-                                    style: 'schoolName'
-                                },
-                                {
-                                    text: 'كود الدخول للامتحان',
-                                    style: 'examTitle'
-                                },
-                                {
-                                    text: student.name,
-                                    style: 'studentName'
-                                },
-                                {
-                                    text: student.code.toString(),
-                                    style: 'studentCode'
-                                },
-                                {
-                                    text: student.grade + (student.classChar ? ' - شعبة ' + student.classChar : ''),
-                                    style: 'studentGrade'
-                                }
-                            ],
-                            style: 'card',
-                            decoration: 'card',
-                            decorationStyle: {
-                                color: '#2c3e50',
-                                width: 2
-                            },
-                            background: '#f8f9fa',
-                            margin: [0, 0, 0, 15],
-                            padding: [10, 15]
-                        };
+                    // إنشاء PDF وعرضه
+                    pdfMake.createPdf(docDefinition).getBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        currentPdfUrl = url;
                         
-                        pageContent.push(card);
+                        // عرض PDF في الـ iframe
+                        document.getElementById('pdfViewer').src = url;
+                        document.getElementById('pdfPreviewContainer').style.display = 'block';
+                        
+                        // إعداد رابط التحميل
+                        document.getElementById('finalDownloadLink').href = url;
+                        
+                        document.getElementById('loading').style.display = 'none';
+                        showAlert('✅ تم إنشاء المعاينة بنجاح - يمكنك رؤية النتيجة أدناه', 'success');
+                        
+                        // التمرير لأسفل لرؤية المعاينة
+                        document.getElementById('pdfPreviewContainer').scrollIntoView({ behavior: 'smooth' });
                     });
                     
-                    docDefinition.content.push(...pageContent);
+                } catch (error) {
+                    document.getElementById('loading').style.display = 'none';
+                    showAlert('❌ حدث خطأ في إنشاء المعاينة', 'error');
+                }
+            }, 1000);
+        }
+        
+        function downloadPDF() {
+            if (!processedData) {
+                showAlert('⚠️ لا توجد بيانات للتحميل', 'error');
+                return;
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loadingText').textContent = 'جاري تحضير الملف للتحميل...';
+            
+            setTimeout(() => {
+                try {
+                    const docDefinition = createPDF();
+                    if (!docDefinition) return;
                     
-                    // إضافة فاصل بين الصفحات (ما عدا الصفحة الأخيرة)
-                    if (pageIndex < pages.length - 1) {
-                        docDefinition.content.push({
-                            text: '',
-                            pageBreak: 'after'
-                        });
-                    }
-                });
-                
-                // إنشاء PDF
-                const pdfDoc = pdfMake.createPdf(docDefinition);
-                pdfDoc.download('كروت_الدخول_للامتحان.pdf');
-                
-                showAlert('✅ تم إنشاء ملف PDF بنجاح!', 'success');
-                
-            } catch (error) {
-                showAlert('❌ حدث خطأ في إنشاء PDF', 'error');
-                console.error('PDF generation error:', error);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('pdfBtn').disabled = false;
+                    // تحميل الملف مباشرة
+                    pdfMake.createPdf(docDefinition).download('كروت_الدخول_للامتحان.pdf');
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    showAlert('✅ جاري تحميل الملف...', 'success');
+                    
+                } catch (error) {
+                    document.getElementById('loading').style.display = 'none';
+                    showAlert('❌ حدث خطأ في التحميل', 'error');
+                }
+            }, 1000);
+        }
+        
+        function printPDF() {
+            if (currentPdfUrl) {
+                const printWindow = window.open(currentPdfUrl);
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
             }
         }
         
@@ -633,14 +717,9 @@
             uploadArea.style.background = '#eef1ff';
         });
         
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.background = '#f8f9ff';
-        });
-        
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.style.background = '#f8f9ff';
-            
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 document.getElementById('fileInput').files = files;
@@ -648,15 +727,8 @@
             }
         });
 
-        // إضافة ديكور الكروت لـ pdfmake
-        pdfMake.fonts = {
-            Roboto: {
-                normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
-                bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
-                italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
-                bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
-            }
-        };
+        // جرب النظام أولاً بالبيانات التجريبية
+        loadTestData();
     </script>
 </body>
 </html>
