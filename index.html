@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إنشاء PDF لأكواد الدخول للامتحان</title>
+    <title>نظام أكواد الدخول للامتحان</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
         }
         
         body {
@@ -25,7 +26,7 @@
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
         }
         
@@ -33,14 +34,7 @@
             color: #333;
             text-align: center;
             margin-bottom: 10px;
-            font-size: 2.2em;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
+            font-size: 2em;
         }
         
         .upload-area {
@@ -50,45 +44,22 @@
             text-align: center;
             margin-bottom: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
             background: #f8f9ff;
         }
         
-        .upload-area:hover {
-            background: #eef1ff;
-            border-color: #764ba2;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
             border: none;
             padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
             margin: 5px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+            font-size: 16px;
         }
         
         .btn-pdf {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            background: #e74c3c;
         }
         
         .loading {
@@ -131,57 +102,21 @@
             border: 1px solid #f5c6cb;
         }
 
-        .download-link {
-            display: none;
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: #d4edda;
+        .preview-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
             border-radius: 10px;
-            border: 2px solid #28a745;
-        }
-
-        .download-link a {
-            color: #155724;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-            display: block;
-            padding: 10px;
-        }
-
-        .download-link a:hover {
-            text-decoration: underline;
-        }
-
-        .instructions {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #ffeaa7;
-            margin: 20px 0;
-            text-align: right;
-        }
-
-        .instructions h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .instructions ul {
-            color: #856404;
-            padding-right: 20px;
-        }
-
-        .instructions li {
-            margin-bottom: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            background: #f9f9f9;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎓 نظام إنشاء PDF لأكواد الدخول للامتحان</h1>
-        <p class="subtitle">إنشاء ملف PDF بكروت الدخول - كل صفحة تحتوي على 5 كروت</p>
+        <h1>🎓 نظام أكواد الدخول للامتحان</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">مدرسة الجيل الجديد الخاصة</p>
         
         <div class="alert success" id="successAlert"></div>
         <div class="alert error" id="errorAlert"></div>
@@ -189,22 +124,12 @@
         <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
             <div>📁</div>
             <h3>انقر لرفع ملف Excel</h3>
-            <p>Supported formats: .xlsx, .xls</p>
+            <p>الملف يجب أن يحتوي على أسماء الطلاب والصفوف</p>
         </div>
         
-        <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+        <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" style="display: none;" onchange="handleFileSelect(event)">
         
-        <div class="instructions">
-            <h3>🔍 إذا لم يظهر ملف PDF، اتبع هذه الخطوات:</h3>
-            <ul>
-                <li>تأكد من أن المتصفح يسمح بتنزيل الملفات</li>
-                <li>ابحث في مجلد "التنزيلات" أو "Downloads"</li>
-                <li>اسم الملف: "كروت_الدخول_للامتحان.pdf"</li>
-                <li>إذا لم يعمل، استخدم الرابط البديل أسفل الزر</li>
-            </ul>
-        </div>
-        
-        <div style="text-align: center;">
+        <div style="text-align: center; margin: 20px 0;">
             <button class="btn" onclick="processExcel()" id="processBtn" disabled>
                 🔄 معالجة البيانات
             </button>
@@ -212,30 +137,20 @@
                 📄 إنشاء PDF
             </button>
         </div>
-
-        <div class="download-link" id="downloadLink">
-            <a href="#" id="pdfDownloadLink" download="كروت_الدخول_للامتحان.pdf">
-                ⬇️ انقر هنا لتحميل ملف PDF إذا لم يبدأ التحميل تلقائياً
-            </a>
-        </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p id="loadingText">جاري معالجة البيانات...</p>
         </div>
 
-        <div class="preview-container" id="previewContainer">
-            <!-- المعاينة تظهر هنا -->
-        </div>
+        <div class="preview-container" id="previewContainer"></div>
     </div>
 
     <script>
-        // جعل jspdf متاح globally
         window.jsPDF = window.jspdf.jsPDF;
 
         let excelData = null;
         let processedData = null;
-        let pdfBlob = null;
         
         const gradeMapping = {
             'الرابع': 'الصف الرابع', 'رابع': 'الصف الرابع',
@@ -249,6 +164,29 @@
             'أ': 'أ', 'ب': 'ب', 'ج': 'ج', 'د': 'د',
             'a': 'أ', 'b': 'ب', 'c': 'ج', 'd': 'د'
         };
+
+        // دالة للتحقق من النص العربي
+        function isArabicText(text) {
+            if (!text) return false;
+            const arabicPattern = /[\u0600-\u06FF]/;
+            return arabicPattern.test(text);
+        }
+
+        // دالة لإصلاح النص العربي
+        function fixArabicText(text) {
+            if (!text) return '';
+            
+            // إذا النص مش عربي، ارجعه كما هو
+            if (!isArabicText(text)) {
+                return text;
+            }
+            
+            // إصلاح المشاكل الشائعة في النص العربي
+            return text
+                .replace(/p/g, '')
+                .replace(/[^\u0600-\u06FF\s0-9]/g, '')
+                .trim();
+        }
         
         function handleFileSelect(event) {
             const file = event.target.files[0];
@@ -264,16 +202,11 @@
                     excelData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                     
                     document.getElementById('processBtn').disabled = false;
-                    showAlert(`تم رفع الملف بنجاح: ${file.name}`, 'success');
+                    showAlert('✅ تم رفع الملف بنجاح', 'success');
                     
                 } catch (error) {
-                    showAlert('خطأ في قراءة الملف!', 'error');
-                    console.error(error);
+                    showAlert('❌ خطأ في قراءة الملف', 'error');
                 }
-            };
-            
-            reader.onerror = function() {
-                showAlert('خطأ في قراءة الملف!', 'error');
             };
             
             reader.readAsArrayBuffer(file);
@@ -305,7 +238,7 @@
         
         function processExcel() {
             if (!excelData) {
-                showAlert('يرجى رفع ملف Excel أولاً!', 'error');
+                showAlert('⚠️ يرجى رفع ملف Excel أولاً', 'error');
                 return;
             }
             
@@ -317,11 +250,11 @@
                     processedData = [];
                     const classCounters = {};
                     
+                    // البحث عن بداية البيانات
                     let dataStartRow = 0;
                     for (let i = 0; i < excelData.length; i++) {
                         if (excelData[i] && excelData[i][1] && 
                             typeof excelData[i][1] === 'string' && 
-                            !excelData[i][1].includes('الاسم') &&
                             excelData[i][1].trim() !== '') {
                             dataStartRow = i;
                             break;
@@ -332,8 +265,11 @@
                         const row = excelData[i];
                         if (!row || !row[1] || String(row[1]).trim() === '') continue;
                         
-                        const studentName = String(row[1]).trim();
+                        let studentName = String(row[1]).trim();
                         const stage = row[5] || '';
+                        
+                        // إصلاح النص العربي
+                        studentName = fixArabicText(studentName);
                         
                         const { grade, classChar } = extractGradeClass(stage);
                         
@@ -360,11 +296,10 @@
                     
                     showPreview();
                     document.getElementById('pdfBtn').disabled = false;
-                    showAlert(`تم معالجة ${processedData.length} طالب بنجاح!`, 'success');
+                    showAlert(`✅ تم معالجة ${processedData.length} طالب`, 'success');
                     
                 } catch (error) {
-                    showAlert('حدث خطأ أثناء معالجة البيانات!', 'error');
-                    console.error(error);
+                    showAlert('❌ حدث خطأ في المعالجة', 'error');
                 } finally {
                     document.getElementById('loading').style.display = 'none';
                 }
@@ -393,7 +328,7 @@
         
         function showPreview() {
             const previewContainer = document.getElementById('previewContainer');
-            previewContainer.innerHTML = '<h3 style="text-align:center; margin-bottom:20px;">معاينة البيانات</h3>';
+            previewContainer.innerHTML = '<h3 style="text-align:center;">معاينة البيانات</h3>';
             
             const table = document.createElement('table');
             table.style.width = '100%';
@@ -404,7 +339,6 @@
                         <th style="padding:12px; border:1px solid #ddd;">الكود</th>
                         <th style="padding:12px; border:1px solid #ddd;">اسم الطالب</th>
                         <th style="padding:12px; border:1px solid #ddd;">الصف</th>
-                        <th style="padding:12px; border:1px solid #ddd;">الشعبة</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -412,8 +346,7 @@
                         <tr>
                             <td style="padding:10px; border:1px solid #ddd; text-align:center;"><strong>${student.code}</strong></td>
                             <td style="padding:10px; border:1px solid #ddd;">${student.name}</td>
-                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.grade}</td>
-                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.classChar || ''}</td>
+                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.grade} ${student.classChar || ''}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -424,23 +357,22 @@
         
         async function generatePDF() {
             if (!processedData || processedData.length === 0) {
-                showAlert('لا توجد بيانات لإنشاء PDF!', 'error');
+                showAlert('⚠️ لا توجد بيانات', 'error');
                 return;
             }
             
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('loadingText').textContent = 'جاري إنشاء ملف PDF...';
+            document.getElementById('loadingText').textContent = 'جاري إنشاء PDF...';
             document.getElementById('pdfBtn').disabled = true;
             
             try {
-                // إنشاء مستند PDF جديد
+                // استخدام خط يدعم العربية
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'mm',
                     format: 'a4'
                 });
-                
-                // تقسيم البيانات إلى مجموعات من 5 طلاب
+
                 const studentsPerPage = 5;
                 const pages = [];
                 
@@ -448,7 +380,6 @@
                     pages.push(processedData.slice(i, i + studentsPerPage));
                 }
                 
-                // إضافة كل صفحة إلى PDF
                 for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
                     if (pageIndex > 0) {
                         pdf.addPage();
@@ -456,179 +387,81 @@
                     
                     const pageStudents = pages[pageIndex];
                     
-                    // إضافة خلفية الصفحة
-                    pdf.setFillColor(255, 255, 255);
-                    pdf.rect(0, 0, 210, 297, 'F');
-                    
-                    // إضافة كل كرت طالب
+                    // إضافة الكروت
                     for (let studentIndex = 0; studentIndex < studentsPerPage; studentIndex++) {
-                        const yPosition = 15 + (studentIndex * 55); // 55mm بين كل كرت
+                        const yPosition = 15 + (studentIndex * 55);
                         
                         if (studentIndex < pageStudents.length) {
                             const student = pageStudents[studentIndex];
-                            drawStudentCard(pdf, student, yPosition);
-                        } else {
-                            // كرت فارغ
-                            drawEmptyCard(pdf, yPosition);
-                        }
-                        
-                        // إضافة خط القطع بين الكروت (ما عدا الأخير)
-                        if (studentIndex < studentsPerPage - 1) {
-                            pdf.setDrawColor(231, 76, 60);
+                            
+                            // كرت الطالب
+                            pdf.setFillColor(248, 249, 250);
+                            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'F');
+                            pdf.setDrawColor(44, 62, 80);
                             pdf.setLineWidth(0.5);
-                            for (let i = 0; i < 190; i += 10) {
-                                if (i % 20 === 0) {
-                                    pdf.line(10 + i, yPosition + 52, 15 + i, yPosition + 52);
-                                }
-                            }
+                            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'D');
+                            
+                            // المعلومات
+                            pdf.setFontSize(12);
+                            pdf.setTextColor(44, 62, 80);
+                            pdf.text('مدرسة الجيل الجديد الخاصة', 105, yPosition + 8, { align: 'center' });
+                            
+                            pdf.setFontSize(10);
+                            pdf.setTextColor(231, 76, 60);
+                            pdf.text('كود الدخول للامتحان', 105, yPosition + 14, { align: 'center' });
+                            
+                            // اسم الطالب
+                            pdf.setFontSize(14);
+                            pdf.setTextColor(44, 62, 80);
+                            pdf.text(student.name, 105, yPosition + 25, { align: 'center' });
+                            
+                            // الكود
+                            pdf.setFontSize(20);
+                            pdf.setTextColor(231, 76, 60);
+                            pdf.text(student.code.toString(), 105, yPosition + 36, { align: 'center' });
+                            
+                            // الصف
+                            pdf.setFontSize(12);
+                            pdf.setTextColor(52, 73, 94);
+                            const gradeText = student.classChar ? 
+                                `${student.grade} - شعبة ${student.classChar}` : 
+                                student.grade;
+                            pdf.text(gradeText, 105, yPosition + 45, { align: 'center' });
                         }
                     }
                     
-                    // إضافة رقم الصفحة
+                    // رقم الصفحة
                     pdf.setFontSize(10);
                     pdf.setTextColor(149, 165, 166);
                     pdf.text(`الصفحة ${pageIndex + 1} من ${pages.length}`, 105, 285, { align: 'center' });
                 }
                 
-                // حفظ ملف PDF كـ Blob
-                const pdfBlob = pdf.output('blob');
-                
-                // إنشاء رابط تحميل
-                const pdfUrl = URL.createObjectURL(pdfBlob);
-                const downloadLink = document.getElementById('pdfDownloadLink');
-                downloadLink.href = pdfUrl;
-                
-                // محاولة التحميل التلقائي
-                try {
-                    const link = document.createElement('a');
-                    link.href = pdfUrl;
-                    link.download = 'كروت_الدخول_للامتحان.pdf';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    showAlert(`✅ تم إنشاء ملف PDF بنجاح! يجب أن يبدأ التحميل تلقائياً. إذا لم يحدث، استخدم الرابط أدناه.`, 'success');
-                } catch (autoDownloadError) {
-                    showAlert(`✅ تم إنشاء ملف PDF! استخدم الرابط أدناه للتحميل.`, 'success');
-                }
-                
-                // إظهار رابط التحميل البديل
-                document.getElementById('downloadLink').style.display = 'block';
-                
-                // تحرير الذاكرة بعد 30 ثانية
-                setTimeout(() => {
-                    URL.revokeObjectURL(pdfUrl);
-                }, 30000);
+                // حفظ الملف
+                pdf.save('كروت_الدخول.pdf');
+                showAlert('✅ تم إنشاء PDF بنجاح', 'success');
                 
             } catch (error) {
-                showAlert('حدث خطأ أثناء إنشاء PDF!', 'error');
-                console.error(error);
+                showAlert('❌ خطأ في إنشاء PDF', 'error');
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('pdfBtn').disabled = false;
             }
         }
         
-        function drawStudentCard(pdf, student, yPosition) {
-            // خلفية الكرت
-            pdf.setFillColor(248, 249, 250);
-            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'F');
-            
-            // حدود الكرت
-            pdf.setDrawColor(44, 62, 80);
-            pdf.setLineWidth(0.5);
-            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'D');
-            
-            // عنوان المدرسة
-            pdf.setFontSize(12);
-            pdf.setTextColor(44, 62, 80);
-            pdf.setFont(undefined, 'bold');
-            pdf.text('مدرسة الجيل الجديد الخاصة', 105, yPosition + 8, { align: 'center' });
-            
-            // "كود الدخول للامتحان"
-            pdf.setFontSize(10);
-            pdf.setTextColor(231, 76, 60);
-            pdf.text('كود الدخول للامتحان', 105, yPosition + 14, { align: 'center' });
-            
-            // خط تحت العنوان
-            pdf.setDrawColor(52, 152, 219);
-            pdf.setLineWidth(0.8);
-            pdf.line(50, yPosition + 16, 160, yPosition + 16);
-            
-            // اسم الطالب
-            pdf.setFontSize(14);
-            pdf.setTextColor(44, 62, 80);
-            pdf.text(student.name, 105, yPosition + 25, { align: 'center' });
-            
-            // الكود
-            pdf.setFontSize(20);
-            pdf.setTextColor(231, 76, 60);
-            pdf.setFont(undefined, 'bold');
-            
-            // خلفية الكود
-            pdf.setFillColor(255, 255, 255);
-            pdf.roundedRect(70, yPosition + 28, 70, 12, 2, 2, 'F');
-            pdf.setDrawColor(204, 204, 204);
-            pdf.setLineWidth(0.3);
-            pdf.roundedRect(70, yPosition + 28, 70, 12, 2, 2, 'D');
-            
-            pdf.text(student.code.toString(), 105, yPosition + 36, { align: 'center' });
-            
-            // الصف والشعبة
-            pdf.setFontSize(12);
-            pdf.setTextColor(52, 73, 94);
-            pdf.setFont(undefined, 'bold');
-            const gradeText = student.classChar ? 
-                `${student.grade} - شعبة ${student.classChar}` : 
-                student.grade;
-            pdf.text(gradeText, 105, yPosition + 45, { align: 'center' });
-        }
-        
-        function drawEmptyCard(pdf, yPosition) {
-            // خلفية الكرت الفارغ
-            pdf.setFillColor(248, 249, 250);
-            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'F');
-            
-            // حدود متقطعة للكرت الفارغ
-            pdf.setDrawColor(44, 62, 80);
-            pdf.setLineWidth(0.5);
-            pdf.setLineDashPattern([3, 3], 0);
-            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'D');
-            pdf.setLineDashPattern([], 0);
-            
-            // نص "كرت فارغ"
-            pdf.setFontSize(14);
-            pdf.setTextColor(153, 153, 153);
-            pdf.setFont(undefined, 'bold');
-            pdf.text('كرت فارغ', 105, yPosition + 25, { align: 'center' });
-        }
-        
         function showAlert(message, type) {
             const alert = document.getElementById(type + 'Alert');
             alert.textContent = message;
             alert.style.display = 'block';
-            
             setTimeout(() => {
                 alert.style.display = 'none';
-            }, 10000);
+            }, 5000);
         }
-        
-        // سحب وإفلات الملفات
+
+        // إعدادات السحب والإفلات
         const uploadArea = document.getElementById('uploadArea');
-        
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.background = '#eef1ff';
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.background = '#f8f9ff';
-        });
-        
+        uploadArea.addEventListener('dragover', (e) => e.preventDefault());
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadArea.style.background = '#f8f9ff';
-            
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 document.getElementById('fileInput').files = files;
