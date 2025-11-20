@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام أكواد الدخول للامتحان</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', 'Arial', sans-serif;
+            font-family: 'Segoe UI', 'Arial', 'Tahoma', sans-serif;
         }
         
         body {
@@ -45,6 +45,12 @@
             margin-bottom: 20px;
             cursor: pointer;
             background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            background: #eef1ff;
+            border-color: #764ba2;
         }
         
         .btn {
@@ -56,10 +62,23 @@
             cursor: pointer;
             margin: 5px;
             font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .btn-pdf {
             background: #e74c3c;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .loading {
@@ -111,6 +130,29 @@
             margin-top: 20px;
             background: #f9f9f9;
         }
+
+        .file-input {
+            display: none;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ffeaa7;
+            margin: 20px 0;
+            text-align: right;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            color: #856404;
+            padding-right: 20px;
+        }
     </style>
 </head>
 <body>
@@ -127,7 +169,16 @@
             <p>الملف يجب أن يحتوي على أسماء الطلاب والصفوف</p>
         </div>
         
-        <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" style="display: none;" onchange="handleFileSelect(event)">
+        <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+        
+        <div class="instructions">
+            <h3>💡 ملاحظة هامة:</h3>
+            <ul>
+                <li>الآن النظام يدعم اللغة العربية بشكل كامل</li>
+                <li>الأسماء ستظهر بشكل صحيح في ملف PDF</li>
+                <li>كل صفحة تحتوي على 5 كروت دخول</li>
+            </ul>
+        </div>
         
         <div style="text-align: center; margin: 20px 0;">
             <button class="btn" onclick="processExcel()" id="processBtn" disabled>
@@ -147,7 +198,20 @@
     </div>
 
     <script>
-        window.jsPDF = window.jspdf.jsPDF;
+        // إعداد pdfmake للغة العربية
+        pdfMake.fonts = {
+            Roboto: {
+                normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
+                bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
+                italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
+                bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
+            },
+            // نضيف خط يدعم العربية
+            Arabic: {
+                normal: 'https://cdn.jsdelivr.net/gh/opentypejs/opentype.js@master/test/fonts/Roboto/Roboto-Regular.ttf',
+                bold: 'https://cdn.jsdelivr.net/gh/opentypejs/opentype.js@master/test/fonts/Roboto/Roboto-Bold.ttf'
+            }
+        };
 
         let excelData = null;
         let processedData = null;
@@ -164,29 +228,6 @@
             'أ': 'أ', 'ب': 'ب', 'ج': 'ج', 'د': 'د',
             'a': 'أ', 'b': 'ب', 'c': 'ج', 'd': 'د'
         };
-
-        // دالة للتحقق من النص العربي
-        function isArabicText(text) {
-            if (!text) return false;
-            const arabicPattern = /[\u0600-\u06FF]/;
-            return arabicPattern.test(text);
-        }
-
-        // دالة لإصلاح النص العربي
-        function fixArabicText(text) {
-            if (!text) return '';
-            
-            // إذا النص مش عربي، ارجعه كما هو
-            if (!isArabicText(text)) {
-                return text;
-            }
-            
-            // إصلاح المشاكل الشائعة في النص العربي
-            return text
-                .replace(/p/g, '')
-                .replace(/[^\u0600-\u06FF\s0-9]/g, '')
-                .trim();
-        }
         
         function handleFileSelect(event) {
             const file = event.target.files[0];
@@ -206,7 +247,12 @@
                     
                 } catch (error) {
                     showAlert('❌ خطأ في قراءة الملف', 'error');
+                    console.error(error);
                 }
+            };
+            
+            reader.onerror = function() {
+                showAlert('❌ خطأ في قراءة الملف', 'error');
             };
             
             reader.readAsArrayBuffer(file);
@@ -250,7 +296,6 @@
                     processedData = [];
                     const classCounters = {};
                     
-                    // البحث عن بداية البيانات
                     let dataStartRow = 0;
                     for (let i = 0; i < excelData.length; i++) {
                         if (excelData[i] && excelData[i][1] && 
@@ -265,11 +310,8 @@
                         const row = excelData[i];
                         if (!row || !row[1] || String(row[1]).trim() === '') continue;
                         
-                        let studentName = String(row[1]).trim();
+                        const studentName = String(row[1]).trim();
                         const stage = row[5] || '';
-                        
-                        // إصلاح النص العربي
-                        studentName = fixArabicText(studentName);
                         
                         const { grade, classChar } = extractGradeClass(stage);
                         
@@ -300,6 +342,7 @@
                     
                 } catch (error) {
                     showAlert('❌ حدث خطأ في المعالجة', 'error');
+                    console.error(error);
                 } finally {
                     document.getElementById('loading').style.display = 'none';
                 }
@@ -339,6 +382,7 @@
                         <th style="padding:12px; border:1px solid #ddd;">الكود</th>
                         <th style="padding:12px; border:1px solid #ddd;">اسم الطالب</th>
                         <th style="padding:12px; border:1px solid #ddd;">الصف</th>
+                        <th style="padding:12px; border:1px solid #ddd;">الشعبة</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -346,7 +390,8 @@
                         <tr>
                             <td style="padding:10px; border:1px solid #ddd; text-align:center;"><strong>${student.code}</strong></td>
                             <td style="padding:10px; border:1px solid #ddd;">${student.name}</td>
-                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.grade} ${student.classChar || ''}</td>
+                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.grade}</td>
+                            <td style="padding:10px; border:1px solid #ddd; text-align:center;">${student.classChar || ''}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -355,9 +400,9 @@
             previewContainer.appendChild(table);
         }
         
-        async function generatePDF() {
+        function generatePDF() {
             if (!processedData || processedData.length === 0) {
-                showAlert('⚠️ لا توجد بيانات', 'error');
+                showAlert('⚠️ لا توجد بيانات لإنشاء PDF', 'error');
                 return;
             }
             
@@ -366,13 +411,7 @@
             document.getElementById('pdfBtn').disabled = true;
             
             try {
-                // استخدام خط يدعم العربية
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
+                // تقسيم البيانات إلى صفحات (5 طلاب في الصفحة)
                 const studentsPerPage = 5;
                 const pages = [];
                 
@@ -380,68 +419,127 @@
                     pages.push(processedData.slice(i, i + studentsPerPage));
                 }
                 
-                for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
-                    if (pageIndex > 0) {
-                        pdf.addPage();
+                // إنشاء محتوى PDF
+                const docDefinition = {
+                    pageSize: 'A4',
+                    pageMargins: [20, 20, 20, 20],
+                    content: [],
+                    defaultStyle: {
+                        font: 'Roboto',
+                        alignment: 'right'
                     }
-                    
-                    const pageStudents = pages[pageIndex];
-                    
-                    // إضافة الكروت
-                    for (let studentIndex = 0; studentIndex < studentsPerPage; studentIndex++) {
-                        const yPosition = 15 + (studentIndex * 55);
-                        
-                        if (studentIndex < pageStudents.length) {
-                            const student = pageStudents[studentIndex];
-                            
-                            // كرت الطالب
-                            pdf.setFillColor(248, 249, 250);
-                            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'F');
-                            pdf.setDrawColor(44, 62, 80);
-                            pdf.setLineWidth(0.5);
-                            pdf.roundedRect(10, yPosition, 190, 50, 3, 3, 'D');
-                            
-                            // المعلومات
-                            pdf.setFontSize(12);
-                            pdf.setTextColor(44, 62, 80);
-                            pdf.text('مدرسة الجيل الجديد الخاصة', 105, yPosition + 8, { align: 'center' });
-                            
-                            pdf.setFontSize(10);
-                            pdf.setTextColor(231, 76, 60);
-                            pdf.text('كود الدخول للامتحان', 105, yPosition + 14, { align: 'center' });
-                            
-                            // اسم الطالب
-                            pdf.setFontSize(14);
-                            pdf.setTextColor(44, 62, 80);
-                            pdf.text(student.name, 105, yPosition + 25, { align: 'center' });
-                            
-                            // الكود
-                            pdf.setFontSize(20);
-                            pdf.setTextColor(231, 76, 60);
-                            pdf.text(student.code.toString(), 105, yPosition + 36, { align: 'center' });
-                            
-                            // الصف
-                            pdf.setFontSize(12);
-                            pdf.setTextColor(52, 73, 94);
-                            const gradeText = student.classChar ? 
-                                `${student.grade} - شعبة ${student.classChar}` : 
-                                student.grade;
-                            pdf.text(gradeText, 105, yPosition + 45, { align: 'center' });
-                        }
-                    }
-                    
-                    // رقم الصفحة
-                    pdf.setFontSize(10);
-                    pdf.setTextColor(149, 165, 166);
-                    pdf.text(`الصفحة ${pageIndex + 1} من ${pages.length}`, 105, 285, { align: 'center' });
-                }
+                };
                 
-                // حفظ الملف
-                pdf.save('كروت_الدخول.pdf');
-                showAlert('✅ تم إنشاء PDF بنجاح', 'success');
+                // إضافة كل صفحة
+                pages.forEach((pageStudents, pageIndex) => {
+                    const pageContent = [];
+                    
+                    // عنوان الصفحة
+                    pageContent.push({
+                        text: `كروت الدخول للامتحان - الصفحة ${pageIndex + 1} من ${pages.length}`,
+                        style: 'header',
+                        margin: [0, 0, 0, 20]
+                    });
+                    
+                    // إضافة كروت الطلاب
+                    pageStudents.forEach((student, studentIndex) => {
+                        const card = {
+                            table: {
+                                widths: ['*'],
+                                body: [
+                                    [
+                                        {
+                                            text: [
+                                                { text: 'مدرسة الجيل الجديد الخاصة\n', style: 'schoolName' },
+                                                { text: 'كود الدخول للامتحان\n\n', style: 'examTitle' },
+                                                { text: student.name + '\n\n', style: 'studentName' },
+                                                { text: student.code.toString() + '\n\n', style: 'studentCode' },
+                                                { text: student.grade + (student.classChar ? ' - شعبة ' + student.classChar : ''), style: 'studentGrade' }
+                                            ],
+                                            style: 'cardContent'
+                                        }
+                                    ]
+                                ]
+                            },
+                            layout: {
+                                hLineWidth: function(i, node) { return 2; },
+                                vLineWidth: function(i, node) { return 0; },
+                                hLineColor: function(i, node) { return '#2c3e50'; },
+                                paddingLeft: function(i, node) { return 10; },
+                                paddingRight: function(i, node) { return 10; },
+                                paddingTop: function(i, node) { return 10; },
+                                paddingBottom: function(i, node) { return 10; },
+                                fillColor: function(i, node) { return '#f8f9fa'; }
+                            },
+                            margin: [0, 0, 0, 10]
+                        };
+                        
+                        pageContent.push(card);
+                    });
+                    
+                    // إضافة مسافة بين الصفحات
+                    if (pageIndex < pages.length - 1) {
+                        pageContent.push({
+                            text: '',
+                            pageBreak: 'after'
+                        });
+                    }
+                    
+                    docDefinition.content = docDefinition.content.concat(pageContent);
+                });
+                
+                // تعريف الأنماط
+                docDefinition.styles = {
+                    header: {
+                        fontSize: 16,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#2c3e50'
+                    },
+                    schoolName: {
+                        fontSize: 12,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#2c3e50'
+                    },
+                    examTitle: {
+                        fontSize: 10,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#e74c3c'
+                    },
+                    studentName: {
+                        fontSize: 14,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#2c3e50'
+                    },
+                    studentCode: {
+                        fontSize: 20,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#e74c3c'
+                    },
+                    studentGrade: {
+                        fontSize: 12,
+                        bold: true,
+                        alignment: 'center',
+                        color: '#34495e'
+                    },
+                    cardContent: {
+                        alignment: 'center',
+                        lineHeight: 1.6
+                    }
+                };
+                
+                // إنشاء PDF
+                pdfMake.createPdf(docDefinition).download('كروت_الدخول_للامتحان.pdf');
+                
+                showAlert('✅ تم إنشاء ملف PDF بنجاح!', 'success');
                 
             } catch (error) {
-                showAlert('❌ خطأ في إنشاء PDF', 'error');
+                showAlert('❌ حدث خطأ في إنشاء PDF', 'error');
+                console.error(error);
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('pdfBtn').disabled = false;
@@ -459,9 +557,19 @@
 
         // إعدادات السحب والإفلات
         const uploadArea = document.getElementById('uploadArea');
-        uploadArea.addEventListener('dragover', (e) => e.preventDefault());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#eef1ff';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '#f8f9ff';
+        });
+        
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
+            uploadArea.style.background = '#f8f9ff';
+            
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 document.getElementById('fileInput').files = files;
