@@ -3,940 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>امتحان علوم - الصف الرابع الابتدائي</title>
+    <title>تسجيل المدرسين - مؤسسة اديوتيك ايجيبت</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-dark: #121212;
+            --secondary-dark: #1e1e1e;
+            --accent-color: #2d5af0;
+            --accent-hover: #1e40af;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
+            font-family: 'Amiri', serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: #333;
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            line-height: 1.6;
             min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        
-        header {
-            background: linear-gradient(to right, #4A00E0, #8E2DE2);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-        
-        .header-content h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .header-content p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .exam-info {
-            display: flex;
-            justify-content: space-around;
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-bottom: 2px dashed #ddd;
-        }
-        
-        .info-item {
-            text-align: center;
-        }
-        
-        .info-item .label {
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .info-item .value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #4A00E0;
-        }
-        
-        .timer {
-            background-color: #ffeb3b;
-            color: #333;
-            padding: 10px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            border-radius: 10px;
-            margin: 10px auto;
-            width: 150px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .screen {
-            padding: 30px;
-            display: none;
-        }
-        
-        #welcome-screen {
-            display: block;
-            text-align: center;
-        }
-        
-        #exam-screen {
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        
-        #result-screen {
-            text-align: center;
-        }
-        
-        h2 {
-            color: #4A00E0;
-            margin-bottom: 20px;
-            text-align: center;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-        }
-        
-        .question {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-right: 5px solid #4A00E0;
-        }
-        
-        .question-number {
-            font-weight: bold;
-            color: #4A00E0;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        
-        .question-text {
-            margin-bottom: 15px;
-            font-size: 18px;
-            line-height: 1.5;
-        }
-        
-        .options {
             display: flex;
             flex-direction: column;
-            gap: 10px;
         }
-        
-        .option {
-            padding: 12px 15px;
-            background-color: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 16px;
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
         }
-        
-        .option:hover {
-            background-color: #f0f0f0;
-            border-color: #bdbdbd;
+
+        header {
+            background-color: var(--secondary-dark);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
         }
-        
-        .option.selected {
-            background-color: #e3f2fd;
-            border-color: #4A00E0;
-            color: #4A00E0;
-            font-weight: bold;
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        
-        .btn {
-            background: linear-gradient(to right, #4A00E0, #8E2DE2);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+
+        .logo {
+            display: flex;
+            align-items: center;
         }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+
+        .logo h1 {
+            font-size: 28px;
+            margin-right: 15px;
+            color: var(--text-light);
         }
-        
-        .btn:active {
-            transform: translateY(1px);
+
+        .logo span {
+            color: var(--accent-color);
         }
-        
-        .btn-secondary {
-            background: linear-gradient(to right, #757575, #9e9e9e);
+
+        .school-name h2 {
+            font-size: 22px;
+            color: var(--text-muted);
         }
-        
-        .input-group {
-            margin: 20px 0;
+
+        .form-container {
+            background-color: var(--secondary-dark);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
         }
-        
-        .input-group label {
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--text-light);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
-            color: #4A00E0;
+            color: var(--text-muted);
+            font-size: 18px;
         }
-        
-        .input-group input {
+
+        input, select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            background-color: var(--primary-dark);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
+            color: var(--text-light);
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            font-family: 'Amiri', serif;
         }
-        
-        .input-group input:focus {
-            border-color: #4A00E0;
+
+        input:focus, select:focus {
             outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(45, 90, 240, 0.2);
         }
-        
-        .result-details {
-            text-align: right;
-            margin-top: 30px;
-        }
-        
-        .result-item {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: right;
-        }
-        
-        .correct {
-            border-right: 5px solid #4CAF50;
-        }
-        
-        .incorrect {
-            border-right: 5px solid #F44336;
-        }
-        
-        .explanation {
-            background-color: #e8f5e9;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-style: italic;
-            color: #555;
-        }
-        
-        .score {
-            font-size: 48px;
-            font-weight: bold;
-            color: #4A00E0;
-            margin: 20px 0;
-        }
-        
-        .score-message {
-            font-size: 24px;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        
-        .progress-bar {
-            height: 10px;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(to right, #4CAF50, #8BC34A);
-            width: 0%;
-            transition: width 0.5s;
-        }
-        
-        .section-title {
-            background: linear-gradient(to right, #FF9800, #FF5722);
+
+        button {
+            background-color: var(--accent-color);
             color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-family: 'Amiri', serif;
         }
-        
-        @media (max-width: 600px) {
-            .container {
-                border-radius: 10px;
+
+        button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            font-size: 16px;
+        }
+
+        .success-message {
+            background-color: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 16px;
+        }
+
+        .nav-button {
+            display: inline-block;
+            background-color: var(--secondary-dark);
+            color: var(--text-light);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .nav-button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .logo-container {
+                flex-direction: column;
+                text-align: center;
             }
             
-            .header-content h1 {
-                font-size: 22px;
+            .logo h1 {
+                margin-right: 0;
+                margin-bottom: 10px;
+                font-size: 24px;
             }
             
-            .question {
-                padding: 15px;
+            .school-name h2 {
+                font-size: 18px;
             }
             
-            .btn {
-                padding: 10px 20px;
-                font-size: 16px;
+            .form-container {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
+    <header>
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo">
+                    <h1>مؤسسة <span>اديوتيك ايجيبت</span> لتطوير الانظمة</h1>
+                </div>
+                <div class="school-name">
+                    <h2>مدرسة الجيل الجديد الخاصة</h2>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
-        <header>
-            <div class="header-content">
-                <h1>امتحان علوم الصف الرابع الابتدائي</h1>
-                <p>المعلم: م / اسماعيل عماد</p>
+        <div class="form-container">
+            <h2>تسجيل بيانات المدرس</h2>
+            <div class="success-message" id="success-message">
+                تم حفظ بيانات المدرس بنجاح!
             </div>
-        </header>
-        
-        <div class="exam-info">
-            <div class="info-item">
-                <div class="label">مدة الامتحان</div>
-                <div class="value">25 دقيقة</div>
-            </div>
-            <div class="info-item">
-                <div class="label">عدد الأسئلة</div>
-                <div class="value">40 سؤال</div>
-            </div>
-            <div class="info-item">
-                <div class="label">نوع الامتحان</div>
-                <div class="value">اختيار من متعدد</div>
-            </div>
-        </div>
-        
-        <!-- شاشة الترحيب -->
-        <div id="welcome-screen" class="screen">
-            <h2>مرحباً بك في امتحان العلوم</h2>
-            <p>هذا الامتحان خاص بمادة العلوم للصف الرابع الابتدائي</p>
+            <form id="teacher-form">
+                <div class="form-group">
+                    <label for="teacher-name">اسم المدرس</label>
+                    <input type="text" id="teacher-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-phone">رقم المدرس (واتساب)</label>
+                    <input type="tel" id="teacher-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-subject">المادة</label>
+                    <select id="teacher-subject" required>
+                        <option value="">اختر المادة</option>
+                        <option value="العلوم">العلوم</option>
+                        <option value="الدراسات">الدراسات</option>
+                        <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+                        <option value="اللغة العربية">اللغة العربية</option>
+                        <option value="الرياضيات">الرياضيات</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-grade">الصف</label>
+                    <select id="teacher-grade" required>
+                        <option value="">اختر الصف</option>
+                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                        <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                        <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
+                    </select>
+                </div>
+                <button type="submit">حفظ البيانات</button>
+            </form>
             
-            <div class="input-group">
-                <label for="student-name">اسم الطالب:</label>
-                <input type="text" id="student-name" placeholder="اكتب اسمك هنا">
-            </div>
-            
-            <div class="timer" id="welcome-timer">25:00</div>
-            
-            <button class="btn" id="start-exam">ابدأ الامتحان</button>
-            
-            <div style="margin-top: 30px; background-color: #fff3cd; padding: 15px; border-radius: 10px; border-right: 5px solid #ffc107;">
-                <h3 style="color: #856404;">تنبيه هام!</h3>
-                <p style="color: #856404;">• الامتحان مدته 25 دقيقة</p>
-                <p style="color: #856404;">• لا يمكنك إعادة الامتحان مرة أخرى</p>
-                <p style="color: #856404;">• بعد إنهاء الامتحان ستحصل على نتيجتك فوراً</p>
-                <p style="color: #856404;">• الامتحان يحتوي على 40 سؤالاً مقسمة إلى أقسام</p>
-            </div>
-        </div>
-        
-        <!-- شاشة الامتحان -->
-        <div id="exam-screen" class="screen">
-            <h2>امتحان العلوم - اختر الإجابة الصحيحة</h2>
-            
-            <div class="timer" id="exam-timer">25:00</div>
-            
-            <div class="progress-bar">
-                <div class="progress" id="exam-progress"></div>
-            </div>
-            
-            <div id="questions-container">
-                <!-- سيتم إضافة الأسئلة هنا عبر JavaScript -->
-            </div>
-            
-            <div style="text-align: center;">
-                <button class="btn" id="submit-exam">إنهاء الامتحان</button>
-            </div>
-        </div>
-        
-        <!-- شاشة النتائج -->
-        <div id="result-screen" class="screen">
-            <h2>نتيجة الامتحان</h2>
-            
-            <div class="score" id="final-score">0/40</div>
-            <div class="score-message" id="score-message"></div>
-            
-            <div id="result-details" class="result-details">
-                <!-- سيتم إضافة تفاصيل النتيجة هنا -->
-            </div>
-            
-            <button class="btn btn-secondary" id="review-exam">مراجعة الإجابات</button>
+            <a href="teacher_data.html" class="nav-button">عرض بيانات المدرسين</a>
         </div>
     </div>
 
-    <script>
-        // بيانات الأسئلة الكاملة
-        const questions = [
-            // قسم المصطلحات العلمية (8 أسئلة)
-            {
-                id: 1,
-                section: "المصطلحات العلمية",
-                text: "ما هو المصطلح العلمي للقدرة على بذل شغل؟",
-                options: ["القوة", "الطاقة", "الحركة"],
-                correct: 1,
-                explanation: "الطاقة هي اللي بتخليك تقدر تعمل شغل، زي ما الأكل بيديك طاقة علشان تتحرك وتلعب."
-            },
-            {
-                id: 2,
-                section: "المصطلحات العلمية", 
-                text: "ما هي القوة التي تسبب اقتراب الجسم في اتجاهك؟",
-                options: ["قوة الطرد", "قوة السحب", "قوة الاحتكاك"],
-                correct: 1,
-                explanation: "قوة السحب هي اللي بتكون بين الأجسام وبتخليها تتجمع مع بعض، زي ما المغناطيس بيسحب الحديد."
-            },
-            {
-                id: 3,
-                section: "المصطلحات العلمية",
-                text: "ما هي القوة التي تجعل الجسم يتحرك بعيداً عنك؟",
-                options: ["قوة الدفع", "قوة الجاذبية", "قوة الجذب"],
-                correct: 0,
-                explanation: "قوة الدفع هي اللي بتكون عكس قوة السحب وبتعمل على إبعاد الأجسام عن بعض."
-            },
-            {
-                id: 4,
-                section: "المصطلحات العلمية",
-                text: "ما هي القوة التي تسحب الجسم إلى أسفل تجاه مركز الأرض؟",
-                options: ["قوة الاحتكاك", "قوة الجاذبية", "قوة الدفع"],
-                correct: 1,
-                explanation: "قوة الجاذبية الأرضية هي اللي بتكون مسؤولة عن إننا مبنطش في الهواء وبنفضل ماشيين على الأرض."
-            },
-            {
-                id: 5,
-                section: "المصطلحات العلمية",
-                text: "ما هي القوة التي تنشأ بين سطحين متلامسين وتكون في عكس اتجاه الحركة؟",
-                options: ["قوة الجاذبية", "قوة الاحتكاك", "قوة الدفع"],
-                correct: 1,
-                explanation: "قوة الاحتكاك دي بتكون بين أي حاجتين بيلتقيوا مع بعض وبتعاكس حركتهم، زي ما العربية بتقف لما ندوس على الفرامل."
-            },
-            {
-                id: 6,
-                section: "المصطلحات العلمية",
-                text: "ما هو مقدار الطاقة اللازمة لتحريك جسم مسافة من خلال القوة المؤثرة عليه؟",
-                options: ["السرعة", "الشغل", "القوة"],
-                correct: 1,
-                explanation: "الشغل هو كمية الطاقة اللي بتتستخدم علشان تحرك جسم مسافة معينة."
-            },
-            {
-                id: 7,
-                section: "المصطلحات العلمية",
-                text: "ما المصطلح العلمي لانتقال جسم من مكان إلى آخر؟",
-                options: ["الحركة", "السكون", "القوة"],
-                correct: 0,
-                explanation: "الحركة هي تغيير موقع الجسم من مكان للتاني."
-            },
-            {
-                id: 8,
-                section: "المصطلحات العلمية",
-                text: "ما هو المؤثر الذي يغير الطاقة لتستطيع بذل شغل؟",
-                options: ["المسافة", "القوة", "السرعة"],
-                correct: 1,
-                explanation: "القوة هي المؤثر اللي بيغير طاقة الجسم ويخليه يقدر يعمل شغل."
-            },
+    <div class="footer">
+        <p>جميع الحقوق محفوظة &copy; 2025 مؤسسة اديوتيك ايجيبت لتطوير الانظمة</p>
+        <p>نظام إدارة المدرسين - مدرسة الجيل الجديد الخاصة</p>
+    </div>
 
-            // قسم صحح الخطأ (10 أسئلة)
-            {
-                id: 9,
-                section: "صحح الخطأ",
-                text: "يمكن أن تتواصل الحيوانات عن طريق:",
-                options: ["الكتابة", "الإشارات والصوت", "الرسم"],
-                correct: 1,
-                explanation: "الحيوانات بتتواصل مع بعض بالإشارات والأصوات مش بالكتابة أو الرسم."
-            },
-            {
-                id: 10,
-                section: "صحح الخطأ",
-                text: "تتواصل الخنافس المضيئة فيما بينها باستخدام:",
-                options: ["حاسة التذوق", "الضوء (الومضات)", "الكتابة"],
-                correct: 1,
-                explanation: "الخنافس المضيئة بتتواصل مع بعض عن طريق الضوء والومضات مش بالتذوق أو الكتابة."
-            },
-            {
-                id: 11,
-                section: "صحح الخطأ", 
-                text: "من الشفرات التي تساعد من حولنا على معرفة ما إذا كانوا سعداء أو غاضبين:",
-                options: ["النار", "تعابير الوجه", "حركة النجوم"],
-                correct: 1,
-                explanation: "تعابير الوجه هي اللي بتقول للناس حوليك إذا كنت فرحان أو زعلان من غير ما تتكلم."
-            },
-            {
-                id: 12,
-                section: "صحح الخطأ",
-                text: "يتم إنتاج الضوء المستخدم في التواصل بين الخنافس المضيئة عن طريق:",
-                options: ["عكس ضوء القمر", "تفاعل كيميائي في أجسامها", "الكهرباء"],
-                correct: 1,
-                explanation: "الخنافس المضيئة عندها مواد كيميائية في جسمها بتتفاعل مع بعض وتعمل ضوء."
-            },
-            {
-                id: 13,
-                section: "صحح الخطأ",
-                text: "يتواصل الإنسان عن طريق تحديد الموقع بـ:",
-                options: ["حمد الصوت", "تحديد الموقع بالصدى (كالخفافيش)", "حركة اليدين فقط"],
-                correct: 1,
-                explanation: "الإنسان ممكن يستخدم الصدى في بعض الأحيان لكن مش زي الخفافيش، لكن ده مش الطريقة الأساسية."
-            },
-            {
-                id: 14,
-                section: "صحح الخطأ",
-                text: "الكتابة من طرق التواصل المشتركة بين:",
-                options: ["الإنسان والحيوان", "الإنسان والإنسان فقط (في الغالب)", "الحيوانات فقط"],
-                correct: 1,
-                explanation: "الكتابة طريقة تواصل أساسية بين البشر، مش بين الإنسان والحيوان."
-            },
-            {
-                id: 15,
-                section: "صحح الخطأ",
-                text: "عند زيادة قوة الدفع المؤثرة على الجسم:",
-                options: ["تزداد كتلة الجسم", "تزداد سرعة الجسم (تسارعه)", "تقل سرعة الجسم"],
-                correct: 1,
-                explanation: "لما تزود قوة الدفع على جسم، هيسرع أكتر وحركته هتزيد."
-            },
-            {
-                id: 16,
-                section: "صحح الخطأ",
-                text: "تقل سرعة الدراجة عند ضغطك على الفرامل بفعل:",
-                options: ["قوة الجاذبية", "قوة الاحتكاك", "قوة الدفع"],
-                correct: 1,
-                explanation: "الفرامل بتزود الاحتكاك بين العجلات والأرض فبتخلي الدراجة تقف."
-            },
-            {
-                id: 17,
-                section: "صحح الخطأ",
-                text: "تتحرك أوراق الشجر بسبب:",
-                options: ["قوة تنافر الضوء", "قوة دفع الرياح", "قوة الجاذبية فقط"],
-                correct: 1,
-                explanation: "الرياح هي اللي بتدفع أوراق الشجر وتخليها تتحرك."
-            },
-            {
-                id: 18,
-                section: "صحح الخطأ",
-                text: "عندما تؤثر قوة في عكس اتجاه حركة الجسم فإن:",
-                options: ["سرعته تزداد", "سرعته تقل (أو يتوقف)", "اتجاهه لا يتغير"],
-                correct: 1,
-                explanation: "لما تحط قوة في اتجاه عكس الحركة، الجسم هيبطي أو يقف."
-            },
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-            // قسم الإجابة عن الأسئلة (5 أسئلة)
-            {
-                id: 19,
-                section: "الإجابة عن الأسئلة",
-                text: "لماذا يحرص الرحالة على أن يكون معهم مرايا في رحلاتهم الصحراوية؟",
-                options: ["للرؤية في الظلام", "لإرسال إشارات ضوئية طلباً للمساعدة", "لصد الحيوانات المفترسة"],
-                correct: 1,
-                explanation: "المرايا بتعكس ضوء الشمس وبتعمل إشارات ضوئية عالية علشان ينقذوا نفسهم لو ضاعوا في الصحراء."
-            },
-            {
-                id: 20,
-                section: "الإجابة عن الأسئلة",
-                text: "لماذا تتواصل الخنافس المضيئة فيما بينها عن طريق ومضات الضوء؟",
-                options: ["لأنها لا تستطيع الرؤية في النهار", "لأنها لغة تواصل فطرية لجذب الشريك أو تحديد المنطقة", "لتنير طريقها في الليل فقط"],
-                correct: 1,
-                explanation: "الخنافس المضيئة بتستخدم الضوء علشان تتكلم مع بعض وتجذب الشريك المناسب ليها وتحدد منطقتها."
-            },
-            {
-                id: 21,
-                section: "الإجابة عن الأسئلة",
-                text: "عندما تدفع كرة على أرضية الحجرة فإنها تتوقف بعد فترة بسبب:",
-                options: ["قوة الجاذبية", "قوة الاحتكاك", "قوة الدفع"],
-                correct: 1,
-                explanation: "الكرة بتكون قاعدة على الأرض، فقوة الاحتكاك بين الكرة والأرض هي اللي بتخليها تقف."
-            },
-            {
-                id: 22,
-                section: "الإجابة عن الأسئلة", 
-                text: "تعود الكرة مرة أخرى بعد قذفها إلى أعلى بسبب:",
-                options: ["قوة الاحتكاك", "قوة الجاذبية الأرضية", "قوة دفع الهواء"],
-                correct: 1,
-                explanation: "الأرض بتجذب كل حاجة ليها، فمهما رميت الكرة لفوق هترجع تاني علشان قوة الجاذبية."
-            },
-            {
-                id: 23,
-                section: "الإجابة عن الأسئلة",
-                text: "كيف يمكن للخفافيش تحديد موقع فريستها؟",
-                options: ["بحاسة الشم القوية", "باستخدام نظام تحديد الموقع بالصدى", "برؤية حادة في الظلام"],
-                correct: 1,
-                explanation: "الخفافيش بتصدر صوت وبتسمع الصدى اللي بيرجع من الحاجات حوليها، وبكده بتعرف مكان الأكل."
-            },
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1ajAWgzvW6pROu2bZBF1_4Vp4FdiUqxs",
+            authDomain: "elgeelelgdeed11111-eaa76.firebaseapp.com",
+            projectId: "elgeelelgdeed11111-eaa76",
+            storageBucket: "elgeelelgdeed11111-eaa76.firebasestorage.app",
+            messagingSenderId: "546105467938",
+            appId: "1:546105467938:web:431bb851756b8463d5567b",
+            measurementId: "G-61WJ7HJ9KE"
+        };
 
-            // قسم أكمل الجمل (17 سؤال)
-            {
-                id: 24,
-                section: "أكمل الجمل",
-                text: "يستخدم الإنسان الشفرات لنقل:",
-                options: ["الأوزان", "المعلومات", "الحرارة"],
-                correct: 1,
-                explanation: "الشفرات والرموز دي وسائل بنستخدمها علشان ننقل معلومات ومشاعر من شخص للتاني."
-            },
-            {
-                id: 25,
-                section: "أكمل الجمل",
-                text: "تتواجد الخنافس المضيئة على أشجار:",
-                options: ["الصنوبر", "في الغابات والمناطق الرطبة", "النخيل"],
-                correct: 1,
-                explanation: "الخنافس المضيئة بتكون في الأماكن الرطبة والغابات علشان تحافظ على رطوبة جسمها."
-            },
-            {
-                id: 26,
-                section: "أكمل الجمل",
-                text: "تغيير الخنافس المضيئة للنمط الذي تضيء به يعتبر تكيفاً:",
-                options: ["سلوكياً", "تكافلياً", "للتواصل والبقاء (تكيف سلوكي)"],
-                correct: 2,
-                explanation: "تغيير نمط الإضاءة ده تكيف سلوكي علشان الخنافس تقدر تتواصل مع بعض وتحمي نفسها."
-            },
-            {
-                id: 27,
-                section: "أكمل الجمل",
-                text: "يستخدم الرحالة ______ لجذب انتباه قائد الطائرات العسكرية وإنقاذهم.",
-                options: ["النار", "المرايا (الإشارات الضوئية)", "الدخان"],
-                correct: 1,
-                explanation: "المرايا بتعكس ضوء الشمس بقوة وبتعمل إشارات واضحة للطيارين من بعيد."
-            },
-            {
-                id: 28,
-                section: "أكمل الجمل",
-                text: "رفع العلم إلى أعلى أو أسفل نوع من أنواع:",
-                options: ["الحركة", "الإشارات (أو الشفرات) البصرية", "القوة"],
-                correct: 1,
-                explanation: "رفع العلم ده إشارة بصرية بنفهم منها معاني معينة من غير ما نتكلم."
-            },
-            {
-                id: 29,
-                section: "أكمل الجمل",
-                text: "من طرق التواصل المشتركة بين الإنسان والحيوان استخدام:",
-                options: ["الكتابة", "لغة الجسد والإشارات", "الرموز المعقدة"],
-                correct: 1,
-                explanation: "الإنسان والحيوان بيتفهموا على بعض بلغة الجسد والإشارات من غير كلام."
-            },
-            {
-                id: 30,
-                section: "أكمل الجمل",
-                text: "تعتبر ______ شفرة، فترتيب الحروف يحمل معنى وينقل معلومات.",
-                options: ["الرسم", "الكلمة (أو الجملة)", "الصوت"],
-                correct: 1,
-                explanation: "الكلمات والجمل كلها شفرات، علشان ترتيب الحروف بيغير المعنى كله."
-            },
-            {
-                id: 31,
-                section: "أكمل الجمل",
-                text: "تتحرك العربات المزودة بالطائرات عند انبعاث الهواء منها بسبب قوة:",
-                options: ["الجاذبية", "الدفع (الفعل ورد الفعل)", "الاحتكاك"],
-                correct: 1,
-                explanation: "لما الهواء يطلع من الطائرة بقوة، بيضغط على الطائرة ويدفعها للأمام (فعل ورد فعل)."
-            },
-            {
-                id: 32,
-                section: "أكمل الجمل",
-                text: "لكي يتحرك أي جسم فإنه يحتاج إلى ______ تؤثر عليه.",
-                options: ["طاقة", "قوة", "سرعة"],
-                correct: 1,
-                explanation: "مفيش حاجة هتتحرك من غير ما تحط عليها قوة علشان تبدأ الحركة."
-            },
-            {
-                id: 33,
-                section: "أكمل الجمل",
-                text: "تساعد المخلالات التي تزود بها الشاحنة النفاثة على تقليل ______",
-                options: ["السرعة", "قوة الاحتكاك مع الهواء", "قوة الدفع"],
-                correct: 1,
-                explanation: "المخلالات دي بتخلي الهواء يعدي حول الشاحنة بسهولة فبيقلل الاحتكاك."
-            },
-            {
-                id: 34,
-                section: "أكمل الجمل",
-                text: "لتحريك سيارة بسرعة أكبر يجب ______ قوة دفع المحرك.",
-                options: ["تقليل", "زيادة", "تثبيت"],
-                correct: 1,
-                explanation: "علشان العربية تروح أسرع، لازم تزود قوة الدفع من المحرك."
-            },
-            {
-                id: 35,
-                section: "أكمل الجمل",
-                text: "تتأثر الأجسام المتحركة في الهواء بقوة احتكاك تكون في ______ اتجاه حركتها.",
-                options: ["نفس", "عكس", "عمودي على"],
-                correct: 1,
-                explanation: "قوة الاحتكاك مع الهواء دايماً بتكون عكس اتجاه الحركة وبتعمل على إبطاء الجسم."
-            },
-            {
-                id: 36,
-                section: "أكمل الجمل",
-                text: "عند تحرك سيارة إلى الأمام فإننا نستدل على حركتها بتغيير ______",
-                options: ["لونها", "موقعها (أو مكانها)", "شكلها"],
-                correct: 1,
-                explanation: "الحركة معناها تغيير المكان، فبنعرف العربية اتحركت من مكانها."
-            },
-            {
-                id: 37,
-                section: "أكمل الجمل",
-                text: "الأجسام التي لا يتغير موضعها تعتبر أجساماً ______",
-                options: ["متحركة", "ساكنة", "دوارة"],
-                correct: 1,
-                explanation: "لما الجسم يفضل في مكانه منغير ما يتحرك، بنسميه جسم ساكن."
-            },
-            {
-                id: 38,
-                section: "أكمل الجمل",
-                text: "أثناء لعبة شد الحبل إذا سحب كل فريق الحبل بقوة متساوية فإن القوى تكون ______",
-                options: ["غير متزنة وتحرك الحبل", "متزنة (قوة محصلة = صفر)", "قوة الجاذبية هي المسيطرة"],
-                correct: 1,
-                explanation: "لما القوتين تكونوا متساويين وكل واحد بيشدد في اتجاه، الحبل مش هيتحرك والقوى بتكون متزنة."
-            },
-            {
-                id: 39,
-                section: "أكمل الجمل",
-                text: "عندما تدفع صندوقاً على الأرض، فإن قوة ______ تؤثر بين الصندوق والأرض.",
-                options: ["الجاذبية", "الاحتكاك", "الدفع"],
-                correct: 1,
-                explanation: "بين أي حاجتين بيلتقيوا مع بعض، في قوة احتكاك بتكون عكس اتجاه الحركة."
-            },
-            {
-                id: 40,
-                section: "أكمل الجمل", 
-                text: "الطاقة التي يكتسبها الجسم بسبب حركته تسمى طاقة ______",
-                options: ["وضع", "حركة", "شغل"],
-                correct: 1,
-                explanation: "لما الجسم يتحرك بيكون عنده طاقة حركة، وكل ما زادت سرعته زادت طاقة الحركة."
-            }
-        ];
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        // المتغيرات العامة
-        let studentName = "";
-        let userAnswers = new Array(questions.length).fill(-1);
-        let timeLeft = 25 * 60; // 25 دقيقة بالثواني
-        let timerInterval;
-        let examStarted = false;
-        let currentSection = "";
-
-        // عناصر DOM
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const examScreen = document.getElementById('exam-screen');
-        const resultScreen = document.getElementById('result-screen');
-        const startExamBtn = document.getElementById('start-exam');
-        const submitExamBtn = document.getElementById('submit-exam');
-        const reviewExamBtn = document.getElementById('review-exam');
-        const studentNameInput = document.getElementById('student-name');
-        const welcomeTimer = document.getElementById('welcome-timer');
-        const examTimer = document.getElementById('exam-timer');
-        const examProgress = document.getElementById('exam-progress');
-        const questionsContainer = document.getElementById('questions-container');
-        const resultDetails = document.getElementById('result-details');
-        const finalScore = document.getElementById('final-score');
-        const scoreMessage = document.getElementById('score-message');
-
-        // تحديث المؤقت
-        function updateTimer() {
-            if (!examStarted) return;
+        // حفظ بيانات المدرس
+        document.getElementById('teacher-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            timeLeft--;
+            const name = document.getElementById('teacher-name').value;
+            const phone = document.getElementById('teacher-phone').value;
+            const subject = document.getElementById('teacher-subject').value;
+            const grade = document.getElementById('teacher-grade').value;
             
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                finishExam();
-                return;
-            }
-            
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            examTimer.textContent = timerText;
-            welcomeTimer.textContent = timerText;
-            
-            // تحديث شريط التقدم
-            const progress = ((25 * 60 - timeLeft) / (25 * 60)) * 100;
-            examProgress.style.width = `${progress}%`;
-        }
-
-        // بدء الامتحان
-        startExamBtn.addEventListener('click', function() {
-            studentName = studentNameInput.value.trim();
-            
-            if (!studentName) {
-                alert("من فضلك اكتب اسمك قبل بدء الامتحان");
-                return;
-            }
-            
-            examStarted = true;
-            welcomeScreen.style.display = 'none';
-            examScreen.style.display = 'block';
-            
-            // عرض الأسئلة
-            renderQuestions();
-            
-            // بدء المؤقت
-            timerInterval = setInterval(updateTimer, 1000);
-        });
-
-        // عرض الأسئلة
-        function renderQuestions() {
-            questionsContainer.innerHTML = '';
-            
-            questions.forEach((question, index) => {
-                // إضافة عنوان القسم إذا تغير
-                if (question.section !== currentSection) {
-                    currentSection = question.section;
-                    const sectionTitle = document.createElement('div');
-                    sectionTitle.className = 'section-title';
-                    sectionTitle.textContent = currentSection;
-                    questionsContainer.appendChild(sectionTitle);
-                }
-                
-                const questionElement = document.createElement('div');
-                questionElement.className = 'question';
-                
-                let optionsHTML = '';
-                question.options.forEach((option, optIndex) => {
-                    optionsHTML += `
-                        <div class="option ${userAnswers[index] === optIndex ? 'selected' : ''}" 
-                             data-question="${index}" data-option="${optIndex}">
-                            ${String.fromCharCode(65 + optIndex)}. ${option}
-                        </div>
-                    `;
+            try {
+                // هذه العملية ستخلق الكوليكشن تلقائياً عند إضافة أول مستند
+                await addDoc(collection(db, "teachers"), {
+                    name: name,
+                    phone: phone,
+                    subject: subject,
+                    grade: grade,
+                    timestamp: new Date()
                 });
                 
-                questionElement.innerHTML = `
-                    <div class="question-number">سؤال ${index + 1}</div>
-                    <div class="question-text">${question.text}</div>
-                    <div class="options">${optionsHTML}</div>
-                `;
+                // إظهار رسالة النجاح
+                document.getElementById('success-message').style.display = 'block';
                 
-                questionsContainer.appendChild(questionElement);
-            });
-            
-            // إضافة مستمعي الأحداث للخيارات
-            document.querySelectorAll('.option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const questionIndex = parseInt(this.getAttribute('data-question'));
-                    const optionIndex = parseInt(this.getAttribute('data-option'));
-                    
-                    // إلغاء تحديد الخيارات الأخرى لنفس السؤال
-                    document.querySelectorAll(`.option[data-question="${questionIndex}"]`).forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    
-                    // تحديد الخيار الحالي
-                    this.classList.add('selected');
-                    
-                    // حفظ الإجابة
-                    userAnswers[questionIndex] = optionIndex;
-                });
-            });
-        }
-
-        // إنهاء الامتحان
-        submitExamBtn.addEventListener('click', function() {
-            if (confirm("هل أنت متأكد أنك تريد إنهاء الامتحان؟ لا يمكنك العودة مرة أخرى!")) {
-                finishExam();
+                // إعادة تعيين النموذج
+                document.getElementById('teacher-form').reset();
+                
+                // إخفاء رسالة النجاح بعد 3 ثوانٍ
+                setTimeout(() => {
+                    document.getElementById('success-message').style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("حدث خطأ أثناء حفظ البيانات. يرجى المحاولة مرة أخرى.");
             }
         });
-
-        // معالجة إنهاء الامتحان
-        function finishExam() {
-            clearInterval(timerInterval);
-            examStarted = false;
-            
-            examScreen.style.display = 'none';
-            resultScreen.style.display = 'block';
-            
-            showResults();
-        }
-
-        // عرض النتائج
-        function showResults() {
-            let correctCount = 0;
-            
-            resultDetails.innerHTML = '';
-            
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                const isCorrect = userAnswer === question.correct;
-                
-                if (isCorrect) {
-                    correctCount++;
-                }
-                
-                const resultItem = document.createElement('div');
-                resultItem.className = `result-item ${isCorrect ? 'correct' : 'incorrect'}`;
-                
-                let answerStatus = '';
-                if (userAnswer === -1) {
-                    answerStatus = '<span style="color: #FF9800;">لم تجب على هذا السؤال</span>';
-                } else if (isCorrect) {
-                    answerStatus = '<span style="color: #4CAF50;">إجابة صحيحة</span>';
-                } else {
-                    answerStatus = '<span style="color: #F44336;">إجابة خاطئة</span>';
-                }
-                
-                resultItem.innerHTML = `
-                    <div class="question-number">سؤال ${index + 1}: ${question.text}</div>
-                    <div>إجابتك: ${userAnswer !== -1 ? String.fromCharCode(65 + userAnswer) + '. ' + question.options[userAnswer] : 'لم تجب'}</div>
-                    <div>الإجابة الصحيحة: ${String.fromCharCode(65 + question.correct) + '. ' + question.options[question.correct]}</div>
-                    <div>${answerStatus}</div>
-                    <div class="explanation">${question.explanation}</div>
-                `;
-                
-                resultDetails.appendChild(resultItem);
-            });
-            
-            const score = correctCount;
-            const total = questions.length;
-            const percentage = Math.round((score / total) * 100);
-            
-            finalScore.textContent = `${score}/${total}`;
-            
-            // تحديد الرسالة بناء على النتيجة
-            let message = "";
-            if (percentage >= 90) {
-                message = "ممتاز! أنت مبدع في العلوم 🌟";
-            } else if (percentage >= 80) {
-                message = "رائع! أداء ممتاز 👏";
-            } else if (percentage >= 70) {
-                message = "جيد جداً! استمر في المذاكرة 💪";
-            } else if (percentage >= 60) {
-                message = "جيد! يمكنك التحسين بالمزيد من المراجعة 📚";
-            } else {
-                message = "يحتاج إلى تحسين، راجع دروسك جيداً 🧠";
-            }
-            
-            scoreMessage.textContent = `${studentName}، ${message}`;
-        }
-
-        // مراجعة الإجابات
-        reviewExamBtn.addEventListener('click', function() {
-            resultScreen.style.display = 'none';
-            examScreen.style.display = 'block';
-            
-            // إلغاء تفعيل الخيارات في وضع المراجعة
-            document.querySelectorAll('.option').forEach(option => {
-                option.style.pointerEvents = 'none';
-            });
-            
-            submitExamBtn.style.display = 'none';
-        });
-
-        // تهيئة المؤقت في شاشة الترحيب
-        function initWelcomeTimer() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            welcomeTimer.textContent = timerText;
-        }
-
-        // تهيئة الصفحة
-        initWelcomeTimer();
     </script>
 </body>
 </html>
